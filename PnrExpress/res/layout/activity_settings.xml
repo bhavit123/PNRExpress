@@ -1,0 +1,50 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.bhavit.pnrexpress.SettingsActivity"
+    android:background="@drawable/back" >
+    
+    <TextView
+        android:id="@+id/textView_heading"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="60dp"
+        android:text="SETTINGS"
+        android:textColor="#FFFFFF"
+        android:textSize="30sp"
+        android:textStyle="bold|italic" />
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/textView_heading"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="22dp" >
+
+        <TextView
+            android:id="@+id/textView1"
+            android:layout_toLeftOf="@+id/toggleButton1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="20dp"
+            android:text="PNR Status-update notifications"
+            android:textColor="#FFFFFF"
+            android:textSize="17dp" />
+
+        <ToggleButton
+            android:id="@+id/toggleButton1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:text="ToggleButton" />
+
+    </RelativeLayout>
+
+</RelativeLayout>

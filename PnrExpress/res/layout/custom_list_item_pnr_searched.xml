@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:gravity="center_vertical" >
+
+    <ImageView
+        android:id="@+id/circle_with_arrow"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:src="@drawable/pt_arrow_with_circle_icon" />
+    
+    <ImageView
+        android:id="@+id/train_icon"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:layout_alignParentLeft="true"
+        android:layout_centerVertical="true"/>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:layout_toRightOf="@+id/train_icon"
+        android:orientation="vertical" >
+
+        <TextView
+            android:id="@+id/pnr_num"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="PNR: 8221556165"
+            android:textColor="#FFFFFF"
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/from_st"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="FROM: MUMBAI CENTRAL"
+            android:textColor="#FFFFFF"
+            android:textSize="13sp" />
+
+        <TextView
+            android:id="@+id/to_st"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="TO: JAIPUR"
+            android:textColor="#FFFFFF"
+            android:textSize="13sp" />
+
+        <TextView
+            android:id="@+id/date_of_journey"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Date: 2014-04-17"
+            android:textColor="#FFFFFF"
+            android:textSize="15sp" />
+    </LinearLayout>
+
+</RelativeLayout>
