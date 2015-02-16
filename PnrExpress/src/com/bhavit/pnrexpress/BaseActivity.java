@@ -191,6 +191,11 @@ public class BaseActivity extends Activity {
 		dialog.show();
 	}
 
+	/**
+	 * This function calls API to get pnr status
+	 * @param pnr
+	 * @param context
+	 */
 	public void getPnrStatus(String pnr, Context context){
 
 		this.context = context;
