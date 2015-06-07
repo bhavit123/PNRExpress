@@ -24,10 +24,8 @@
     <string-array name="nav_drawer_items">
         <item>PNR Status</item>
         <item>Seat Availability (β)</item>
-        <item>Photos</item>
-        <item>Communities</item>
-        <item>Pages</item>
-        <item>What\'s Hot</item>
+        <item>Seat Layout</item>
+
     </string-array>
     <string-array name="train_classes">
         <item>ALL</item>

@@ -7,6 +7,7 @@ import com.bhavit.pnrexpress.fragment.SeatAvailabilityFragment;
 import com.bhavit.pnrexpress.fragment.PagesFragment;
 import com.bhavit.pnrexpress.fragment.PhotosFragment;
 import com.bhavit.pnrexpress.fragment.PnrFragment;
+import com.bhavit.pnrexpress.fragment.SeatlayoutFragment;
 import com.bhavit.pnrexpress.fragment.WhatsHotFragment;
 import com.bhavit.pnrexpress.model.NavDrawerItem;
 import com.bhavit.pnrexpress.util.NavDrawerListAdapter;
@@ -67,48 +68,54 @@ public class MainActivity extends FragmentActivity {
 		navDrawerItems = new ArrayList<NavDrawerItem>();
 
 		// adding nav drawer items to array
-		// Home
-		navDrawerItems.add(new NavDrawerItem(navMenuTitles[0], navMenuIcons.getResourceId(0, -1)));
-		// Find People
-		navDrawerItems.add(new NavDrawerItem(navMenuTitles[1], navMenuIcons.getResourceId(1, -1)));
-		// Photos
-		/*navDrawerItems.add(new NavDrawerItem(navMenuTitles[2], navMenuIcons.getResourceId(2, -1)));
+		// Pnr Status
+		navDrawerItems.add(new NavDrawerItem(navMenuTitles[0], navMenuIcons
+				.getResourceId(0, -1)));
+		// Seat Availability
+		navDrawerItems.add(new NavDrawerItem(navMenuTitles[1], navMenuIcons
+				.getResourceId(1, -1)));
+		// Seat Layout
+		navDrawerItems.add(new NavDrawerItem(navMenuTitles[2], navMenuIcons
+				.getResourceId(2, -1)));
 		// Communities, Will add a counter here
-		navDrawerItems.add(new NavDrawerItem(navMenuTitles[3], navMenuIcons.getResourceId(3, -1), true, "22"));
-		// Pages
-		navDrawerItems.add(new NavDrawerItem(navMenuTitles[4], navMenuIcons.getResourceId(4, -1)));
-		// What's hot, We  will add a counter here
-		navDrawerItems.add(new NavDrawerItem(navMenuTitles[5], navMenuIcons.getResourceId(5, -1), true, "50+"));*/
-		
+		/*
+		 * navDrawerItems.add(new NavDrawerItem(navMenuTitles[3],
+		 * navMenuIcons.getResourceId(3, -1), true, "22")); // Pages
+		 * navDrawerItems.add(new NavDrawerItem(navMenuTitles[4],
+		 * navMenuIcons.getResourceId(4, -1))); // What's hot, We will add a
+		 * counter here navDrawerItems.add(new NavDrawerItem(navMenuTitles[5],
+		 * navMenuIcons.getResourceId(5, -1), true, "50+"));
+		 */
 
 		// Recycle the typed array
 		navMenuIcons.recycle();
 		mDrawerList.setOnItemClickListener(new SlideMenuClickListener());
 
 		// setting the nav drawer list adapter
-		adapter = new NavDrawerListAdapter(MainActivity.this,
-				navDrawerItems);
+		adapter = new NavDrawerListAdapter(MainActivity.this, navDrawerItems);
 		mDrawerList.setAdapter(adapter);
 
 		// enabling action bar app icon and behaving it as toggle button
-		//getActionBar().setDisplayHomeAsUpEnabled(true);
-		//getActionBar().setHomeButtonEnabled(true);
+		// getActionBar().setDisplayHomeAsUpEnabled(true);
+		// getActionBar().setHomeButtonEnabled(true);
 
 		mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
-				R.drawable.ic_drawer, //nav menu toggle icon
-				R.string.app_name, // nav drawer open - description for accessibility
-				R.string.app_name // nav drawer close - description for accessibility
+				R.drawable.ic_drawer, // nav menu toggle icon
+				R.string.app_name, // nav drawer open - description for
+									// accessibility
+				R.string.app_name // nav drawer close - description for
+									// accessibility
 		) {
 			public void onDrawerClosed(View view) {
-				//getActionBar().setTitle(mTitle);
+				// getActionBar().setTitle(mTitle);
 				// calling onPrepareOptionsMenu() to show action bar icons
-				//invalidateOptionsMenu();
+				// invalidateOptionsMenu();
 			}
 
 			public void onDrawerOpened(View drawerView) {
-				//getActionBar().setTitle(mDrawerTitle);
+				// getActionBar().setTitle(mDrawerTitle);
 				// calling onPrepareOptionsMenu() to hide action bar icons
-				//invalidateOptionsMenu();
+				// invalidateOptionsMenu();
 			}
 		};
 		mDrawerLayout.setDrawerListener(mDrawerToggle);
@@ -143,7 +150,7 @@ public class MainActivity extends FragmentActivity {
 			fragment = new SeatAvailabilityFragment();
 			break;
 		case 2:
-			fragment = new PhotosFragment();
+			fragment = new SeatlayoutFragment();
 			break;
 		case 3:
 			fragment = new CommunityFragment();
@@ -179,7 +186,7 @@ public class MainActivity extends FragmentActivity {
 	@Override
 	public void setTitle(CharSequence title) {
 		mTitle = title;
-//		getActionBar().setTitle(mTitle);
+		// getActionBar().setTitle(mTitle);
 	}
 
 	/**
