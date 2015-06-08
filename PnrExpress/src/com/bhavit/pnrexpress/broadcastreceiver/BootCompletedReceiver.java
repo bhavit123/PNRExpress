@@ -2,13 +2,13 @@ package com.bhavit.pnrexpress.broadcastreceiver;
 
 import java.util.Calendar;
 
-import com.bhavit.pnrexpress.service.BackgroundUpdateService;
-
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+
+import com.bhavit.pnrexpress.service.BackgroundUpdateService;
 
 public class BootCompletedReceiver extends BroadcastReceiver {
 	

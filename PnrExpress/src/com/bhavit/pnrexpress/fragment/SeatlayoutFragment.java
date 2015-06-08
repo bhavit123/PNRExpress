@@ -1,12 +1,14 @@
 package com.bhavit.pnrexpress.fragment;
 
-import com.bhavit.pnrexpress.R;
-
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
+import android.widget.TextView;
+
+import com.bhavit.pnrexpress.BaseActivity;
+import com.bhavit.pnrexpress.R;
 
 public class SeatlayoutFragment extends BaseFragment {
 
@@ -19,6 +21,9 @@ public class SeatlayoutFragment extends BaseFragment {
 
 		View rootView = inflater.inflate(R.layout.fragment_seat_layout,
 				container, false);
+		
+		TextView heading = (TextView) rootView.findViewById(R.id.textView_heading);
+		heading.setTypeface(BaseActivity.tf);
 
 		setDrawerAndSettingsButtons(rootView);
 

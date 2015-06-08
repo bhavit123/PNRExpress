@@ -10,36 +10,17 @@ import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.protocol.HTTP;
 
-import com.bhavit.pnrexpress.fragment.SeatAvailabilityFragment.MyAsyncTask;
-import com.bhavit.pnrexpress.model.Availability;
-import com.bhavit.pnrexpress.model.Passenger;
-import com.bhavit.pnrexpress.model.Station;
-import com.bhavit.pnrexpress.model.Train;
-import com.bhavit.pnrexpress.util.AppConstants;
-import com.bhavit.pnrexpress.util.CustomListViewAdapterAvailability;
-import com.bhavit.pnrexpress.util.CustomListViewAdapterTrainsList;
-import com.google.android.gms.cast.Cast.ApplicationConnectionResult;
-import com.jaunt.Element;
-import com.jaunt.Elements;
-import com.jaunt.NotFound;
-import com.jaunt.ResponseException;
-import com.jaunt.UserAgent;
-import com.jaunt.component.Table;
-
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.database.DataSetObserver;
 import android.graphics.drawable.ColorDrawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
@@ -47,9 +28,20 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Spinner;
-import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.bhavit.pnrexpress.model.Availability;
+import com.bhavit.pnrexpress.model.Train;
+import com.bhavit.pnrexpress.util.AppConstants;
+import com.bhavit.pnrexpress.util.CustomListViewAdapterAvailability;
+import com.bhavit.pnrexpress.util.CustomListViewAdapterTrainsList;
+import com.jaunt.Element;
+import com.jaunt.Elements;
+import com.jaunt.NotFound;
+import com.jaunt.ResponseException;
+import com.jaunt.UserAgent;
+import com.jaunt.component.Table;
 
 
 public class TrainsSearchResult extends BaseActivity {

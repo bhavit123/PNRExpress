@@ -14,7 +14,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bhavit.pnrexpress.R;
-import com.bhavit.pnrexpress.model.Passenger;
 import com.bhavit.pnrexpress.model.PnrDetail;
 
 public class CustomListViewAdapterCheckedPnrs extends ArrayAdapter<PnrDetail> {

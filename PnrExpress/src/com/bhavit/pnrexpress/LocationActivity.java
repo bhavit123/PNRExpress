@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import android.annotation.SuppressLint;
-import android.app.ProgressDialog;
-import android.content.Context;
 import android.location.Address;
 import android.location.Criteria;
 import android.location.Geocoder;
@@ -21,18 +19,15 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bhavit.pnrexpress.model.Station;
+import com.bhavit.pnrexpress.util.CustomListViewAdapterStationsList;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapFragment;
-import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.bhavit.pnrexpress.BaseActivity;
-import com.bhavit.pnrexpress.model.Station;
-import com.bhavit.pnrexpress.util.CustomListViewAdapterStationsList;
 
 public class LocationActivity extends FragmentActivity implements LocationListener {
 	// private MyLocationOverlay myLocationOverlay;

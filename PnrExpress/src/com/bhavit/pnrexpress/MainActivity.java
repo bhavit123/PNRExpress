@@ -2,32 +2,29 @@ package com.bhavit.pnrexpress;
 
 import java.util.ArrayList;
 
-import com.bhavit.pnrexpress.fragment.CommunityFragment;
-import com.bhavit.pnrexpress.fragment.SeatAvailabilityFragment;
-import com.bhavit.pnrexpress.fragment.PagesFragment;
-import com.bhavit.pnrexpress.fragment.PhotosFragment;
-import com.bhavit.pnrexpress.fragment.PnrFragment;
-import com.bhavit.pnrexpress.fragment.SeatlayoutFragment;
-import com.bhavit.pnrexpress.fragment.WhatsHotFragment;
-import com.bhavit.pnrexpress.model.NavDrawerItem;
-import com.bhavit.pnrexpress.util.NavDrawerListAdapter;
-
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.res.Configuration;
 import android.content.res.TypedArray;
 import android.os.Bundle;
-import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.ListView;
+
+import com.bhavit.pnrexpress.fragment.CommunityFragment;
+import com.bhavit.pnrexpress.fragment.PagesFragment;
+import com.bhavit.pnrexpress.fragment.PnrFragment;
+import com.bhavit.pnrexpress.fragment.SeatAvailabilityFragment;
+import com.bhavit.pnrexpress.fragment.SeatlayoutFragment;
+import com.bhavit.pnrexpress.fragment.WhatsHotFragment;
+import com.bhavit.pnrexpress.model.NavDrawerItem;
+import com.bhavit.pnrexpress.util.NavDrawerListAdapter;
 
 public class MainActivity extends FragmentActivity {
 	private DrawerLayout mDrawerLayout;
@@ -100,7 +97,6 @@ public class MainActivity extends FragmentActivity {
 		// getActionBar().setHomeButtonEnabled(true);
 
 		mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
-				R.drawable.ic_drawer, // nav menu toggle icon
 				R.string.app_name, // nav drawer open - description for
 									// accessibility
 				R.string.app_name // nav drawer close - description for
@@ -206,6 +202,22 @@ public class MainActivity extends FragmentActivity {
 		super.onConfigurationChanged(newConfig);
 		// Pass any configuration change to the drawer toggls
 		mDrawerToggle.onConfigurationChanged(newConfig);
+	}
+
+	@Override
+	public void onBackPressed() {
+
+		BaseActivity.showAlertDialogTwoButtons(MainActivity.this, "Exit",
+				"Do you want to exit application?", new OnClickListener() {
+
+					@Override
+					public void onClick(View v) {
+
+						finish();
+
+					}
+				});
+
 	}
 
 }

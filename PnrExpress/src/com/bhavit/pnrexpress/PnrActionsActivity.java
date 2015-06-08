@@ -1,9 +1,5 @@
 package com.bhavit.pnrexpress;
 
-import java.util.ArrayList;
-
-import com.bhavit.pnrexpress.model.Station;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;

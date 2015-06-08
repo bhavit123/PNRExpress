@@ -6,27 +6,11 @@ import java.util.List;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.ResponseHandler;
-import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.protocol.HTTP;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import com.bhavit.pnrexpress.MainActivity;
-import com.bhavit.pnrexpress.R;
-import com.bhavit.pnrexpress.dao.SqlHelper;
-import com.bhavit.pnrexpress.fragment.PnrFragment;
-import com.bhavit.pnrexpress.model.LastStatus;
-import com.bhavit.pnrexpress.model.PnrDetail;
-import com.jaunt.Elements;
-import com.jaunt.NotFound;
-import com.jaunt.ResponseException;
-import com.jaunt.UserAgent;
-import com.jaunt.component.Table;
 
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -43,7 +27,18 @@ import android.os.AsyncTask;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
-import android.widget.Toast;
+
+import com.bhavit.pnrexpress.MainActivity;
+import com.bhavit.pnrexpress.R;
+import com.bhavit.pnrexpress.dao.SqlHelper;
+import com.bhavit.pnrexpress.fragment.PnrFragment;
+import com.bhavit.pnrexpress.model.LastStatus;
+import com.bhavit.pnrexpress.model.PnrDetail;
+import com.jaunt.Elements;
+import com.jaunt.NotFound;
+import com.jaunt.ResponseException;
+import com.jaunt.UserAgent;
+import com.jaunt.component.Table;
 
 public class BackgroundUpdateService extends Service {
 

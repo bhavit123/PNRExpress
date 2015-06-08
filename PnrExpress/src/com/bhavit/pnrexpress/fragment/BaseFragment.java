@@ -1,13 +1,13 @@
 package com.bhavit.pnrexpress.fragment;
 
-import com.bhavit.pnrexpress.R;
-
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.DrawerLayout;
 import android.view.Gravity;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+
+import com.bhavit.pnrexpress.R;
 
 public class BaseFragment extends Fragment {
 	

@@ -2,10 +2,6 @@ package com.bhavit.pnrexpress.util;
 
 import java.util.ArrayList;
 
-import com.bhavit.pnrexpress.BaseActivity;
-import com.bhavit.pnrexpress.R;
-import com.bhavit.pnrexpress.model.NavDrawerItem;
-
 import android.app.Activity;
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -14,6 +10,10 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.bhavit.pnrexpress.BaseActivity;
+import com.bhavit.pnrexpress.R;
+import com.bhavit.pnrexpress.model.NavDrawerItem;
 
 public class NavDrawerListAdapter extends BaseAdapter {
 	

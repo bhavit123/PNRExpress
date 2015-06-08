@@ -11,63 +11,50 @@ import java.util.List;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.ResponseHandler;
-import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.protocol.HTTP;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.bhavit.pnrexpress.dao.SqlHelper;
-import com.bhavit.pnrexpress.fragment.PnrFragment;
-import com.bhavit.pnrexpress.model.LastStatus;
-import com.bhavit.pnrexpress.model.Station;
-import com.bhavit.pnrexpress.model.Passenger;
-import com.bhavit.pnrexpress.model.PnrDetail;
-import com.bhavit.pnrexpress.util.CustomListViewAdapterCheckedPnrs;
-import com.bhavit.pnrexpress.util.CustomListViewAdapterPassengers;
-import com.bhavit.pnrexpress.util.HMACGenarator;
-import com.bhavit.pnrexpress.util.RestClient;
-import com.jaunt.Element;
-import com.jaunt.Elements;
-import com.jaunt.JauntException;
-import com.jaunt.UserAgent;
-import com.jaunt.component.Table;
-
-import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Build;
-import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.Window;
-import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
-import android.widget.Toast;
-import android.widget.LinearLayout.LayoutParams;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.bhavit.pnrexpress.dao.SqlHelper;
+import com.bhavit.pnrexpress.fragment.PnrFragment;
+import com.bhavit.pnrexpress.model.LastStatus;
+import com.bhavit.pnrexpress.model.Passenger;
+import com.bhavit.pnrexpress.model.PnrDetail;
+import com.bhavit.pnrexpress.model.Station;
+import com.bhavit.pnrexpress.util.CustomListViewAdapterCheckedPnrs;
+import com.bhavit.pnrexpress.util.CustomListViewAdapterPassengers;
+import com.jaunt.Element;
+import com.jaunt.Elements;
+import com.jaunt.UserAgent;
+import com.jaunt.component.Table;
 
 public class BaseActivity extends Activity {
 
@@ -128,7 +115,51 @@ public class BaseActivity extends Activity {
 		dialog.show();
 	}
 
-	public void showAlertDialogTwoButtons(final Context context, String titleText, String messageText, final View listViewItem, int listItem, final ListView l){
+	public static void showAlertDialogTwoButtons(final Context context, String titleText, String messageText, OnClickListener listener){
+
+		metrics = context.getResources().getDisplayMetrics();
+		width = metrics.widthPixels;
+		height = metrics.heightPixels;
+
+		final Dialog dialog = new Dialog(context);
+		dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+		dialog.setContentView(R.layout.custom_dialog_alert_twobuttons);
+
+		TextView title =  (TextView) dialog.findViewById(R.id.title);
+		TextView message =  (TextView) dialog.findViewById(R.id.message);
+		Button ok =  (Button) dialog.findViewById(R.id.button1);
+		Button cancel = (Button) dialog.findViewById(R.id.button2);
+
+
+		title.setText(titleText);
+		title.setTypeface(tf);
+		message.setText(messageText);
+		message.setTypeface(tf);
+		ok.setTypeface(tf);
+		cancel.setTypeface(tf);
+		//ok.setLayoutParams(new LinearLayout.LayoutParams(width-150, LinearLayout.LayoutParams.WRAP_CONTENT));
+		ok.setOnClickListener(listener);
+
+		cancel.setOnClickListener(new View.OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				dialog.dismiss();
+
+			}
+		});
+
+		dialog.getWindow().setBackgroundDrawable(
+				new ColorDrawable(
+						android.graphics.Color.TRANSPARENT));
+
+		dialog.getWindow().setWindowAnimations(R.style.dialogWindowAnim);
+		dialog.setCanceledOnTouchOutside(false);
+		dialog.show();
+	}
+
+	
+	public static void showPnrDeleteDialog(final Context context, String titleText, String messageText, final View listViewItem, int listItem, final ListView l){
 
 		metrics = context.getResources().getDisplayMetrics();
 		width = metrics.widthPixels;

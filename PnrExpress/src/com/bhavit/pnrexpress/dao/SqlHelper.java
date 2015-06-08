@@ -1,30 +1,22 @@
 package com.bhavit.pnrexpress.dao;
 
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Locale;
-
-import com.bhavit.pnrexpress.model.LastStatus;
-import com.bhavit.pnrexpress.model.Station;
-import com.bhavit.pnrexpress.model.PnrDetail;
 
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
+
+import com.bhavit.pnrexpress.model.LastStatus;
+import com.bhavit.pnrexpress.model.PnrDetail;
+import com.bhavit.pnrexpress.model.Station;
 
 public class SqlHelper extends SQLiteOpenHelper {
 

@@ -107,7 +107,7 @@ public class PnrFragment extends BaseFragment {
 			public boolean onItemLongClick(AdapterView<?> arg0,
 					final View arg1, int arg2, long arg3) {
 
-				new BaseActivity().showAlertDialogTwoButtons(getActivity(), "CONFIRM",
+				BaseActivity.showPnrDeleteDialog(getActivity(), "CONFIRM",
 						"DO you really want to delete this PNR?", arg1, arg2, l);
 
 				return true; // returning true prevents the onItemClick to run

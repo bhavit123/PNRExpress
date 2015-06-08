@@ -12,9 +12,8 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+
 import com.bhavit.pnrexpress.R;
-import com.bhavit.pnrexpress.model.Station;
-import com.bhavit.pnrexpress.model.PnrDetail;
 import com.bhavit.pnrexpress.model.Train;
 
 public class CustomListViewAdapterTrainsList extends ArrayAdapter<Train> {

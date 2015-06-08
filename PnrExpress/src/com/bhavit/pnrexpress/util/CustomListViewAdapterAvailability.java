@@ -1,11 +1,6 @@
 package com.bhavit.pnrexpress.util;
 
 import java.util.List;
-import java.util.Locale;
-
-import com.bhavit.pnrexpress.R;
-import com.bhavit.pnrexpress.model.Availability;
-import com.bhavit.pnrexpress.model.Passenger;
 
 import android.app.Activity;
 import android.content.Context;
@@ -15,6 +10,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
+
+import com.bhavit.pnrexpress.R;
+import com.bhavit.pnrexpress.model.Availability;
 
 public class CustomListViewAdapterAvailability extends ArrayAdapter<Availability> {
 

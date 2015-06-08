@@ -38,7 +38,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/settings"
         android:layout_centerHorizontal="true"
-        android:text="TRAIN ROUTE"
+        android:text="SEAT LAYOUT"
         android:textColor="#FFFFFF"
         android:textSize="30sp"
         android:textStyle="bold" />

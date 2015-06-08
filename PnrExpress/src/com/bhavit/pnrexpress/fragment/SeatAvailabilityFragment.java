@@ -3,23 +3,21 @@ package com.bhavit.pnrexpress.fragment;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Calendar;
 import java.util.Iterator;
 
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.ResponseHandler;
-import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.protocol.HTTP;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.json.JSONStringer;
 
+import android.app.DatePickerDialog;
+import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -27,13 +25,14 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.animation.AnimationUtils;
 import android.view.ViewGroup;
+import android.view.animation.AnimationUtils;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
@@ -48,15 +47,15 @@ import com.bhavit.pnrexpress.BaseActivity;
 import com.bhavit.pnrexpress.R;
 import com.bhavit.pnrexpress.TrainsSearchResult;
 import com.bhavit.pnrexpress.util.AppConstants;
-import com.bhavit.pnrexpress.util.HMACGenarator;
-import com.bhavit.pnrexpress.util.RestClient;
 
 public class SeatAvailabilityFragment extends BaseFragment implements
-TextWatcher {
+		TextWatcher {
 
 	DatePicker date;
 	Spinner quota;
-	AutoCompleteTextView station1,station2;
+	AutoCompleteTextView station1, station2;
+	Button calendar;
+	EditText dateEd;
 
 	public SeatAvailabilityFragment() {
 	}
@@ -77,21 +76,22 @@ TextWatcher {
 		final ImageView arrow = (ImageView) rootView
 				.findViewById(R.id.imageView2);
 
-
 		arrow.setOnClickListener(new View.OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
-				arrow.startAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.rotate));
+				arrow.startAnimation(AnimationUtils.loadAnimation(
+						getActivity(), R.anim.rotate));
 
 				String temp = station2.getText().toString();
 
 				station2.setText(station1.getText().toString());
-				station2.startAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.right_to_left));
+				station2.startAnimation(AnimationUtils.loadAnimation(
+						getActivity(), R.anim.right_to_left));
 
 				station1.setText(temp);
-				station1.startAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.left_to_right));
-
+				station1.startAnimation(AnimationUtils.loadAnimation(
+						getActivity(), R.anim.left_to_right));
 
 			}
 		});
@@ -101,7 +101,7 @@ TextWatcher {
 		JSONObject stations;
 		try {
 			stations = new JSONObject(loadJSONFromAsset());
-			Iterator names = stations.keys();
+			Iterator<String> names = stations.keys();
 
 			while (names.hasNext()) {
 				String element = (String) names.next();
@@ -115,18 +115,16 @@ TextWatcher {
 			e.printStackTrace();
 		}
 
-		date  = (DatePicker) rootView
-				.findViewById(R.id.datePicker1);
-		
-		String[] array = new String[10];	
+		String[] array = new String[10];
 		AppConstants.getQuotas().keySet().toArray(array);
 		quota = (Spinner) rootView.findViewById(R.id.spinner2);
 		quota.setPrompt("Quota");
-		ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_item, array);
+		ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),
+				android.R.layout.simple_spinner_item, array);
 		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		quota.setAdapter(adapter);
 
-		station1  = (AutoCompleteTextView) rootView
+		station1 = (AutoCompleteTextView) rootView
 				.findViewById(R.id.autoCompleteTextView1);
 		station1.addTextChangedListener(this);
 		station1.setTypeface(BaseActivity.tf);
@@ -146,30 +144,46 @@ TextWatcher {
 			@Override
 			public void onClick(View v) {
 
-				String url2= "http://pnrbuddy.com/hauth/seatavailtrains";
+				if (date != null) {
+					String url2 = "http://pnrbuddy.com/hauth/seatavailtrains";
 
-				String dateString = (date.getDayOfMonth() < 10 ? "0"+date.getDayOfMonth() : date.getDayOfMonth())
-						+ "/"
-						+ (date.getMonth()+1 < 10 ? "0"+(date.getMonth()+1) : date.getMonth()+1)
-						+ "/"
-						+ date.getYear();
+					String dateString = (date.getDayOfMonth() < 10 ? "0"
+							+ date.getDayOfMonth() : date.getDayOfMonth())
+							+ "/"
+							+ (date.getMonth() + 1 < 10 ? "0"
+									+ (date.getMonth() + 1)
+									: date.getMonth() + 1)
+							+ "/"
+							+ date.getYear();
 
-				ConnectivityManager cm = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
-				NetworkInfo networkInfo = cm.getActiveNetworkInfo();
-				// if no network is available networkInfo will be null
-				// otherwise check if we are connected to internet
-				if (networkInfo != null && networkInfo.isConnected()) {
+					ConnectivityManager cm = (ConnectivityManager) getActivity()
+							.getSystemService(Context.CONNECTIVITY_SERVICE);
+					NetworkInfo networkInfo = cm.getActiveNetworkInfo();
+					// if no network is available networkInfo will be null
+					// otherwise check if we are connected to internet
+					if (networkInfo != null && networkInfo.isConnected()) {
 
-					MyAsyncTask asynctask = new MyAsyncTask();
-					asynctask.execute(url2,station1.getText().toString(),station2.getText().toString(),dateString, AppConstants.getQuotaValue(quota.getSelectedItem().toString()));
+						MyAsyncTask asynctask = new MyAsyncTask();
+						asynctask.execute(url2, station1.getText().toString(),
+								station2.getText().toString(), dateString,
+								AppConstants.getQuotaValue(quota
+										.getSelectedItem().toString()));
+					} else {
+						Toast.makeText(getActivity(),
+								"No internet connection !!", Toast.LENGTH_LONG)
+								.show();
+
+					}
 				} else {
 
-					Toast.makeText(getActivity(),
-							"No internet connection !!", Toast.LENGTH_LONG).show();
+					Toast.makeText(getActivity(), "Please select date.",
+							Toast.LENGTH_LONG).show();
 
 				}
 			}
 		});
+
+		date = (DatePicker) rootView.findViewById(R.id.datePicker1);
 
 		return rootView;
 	}
@@ -196,20 +210,22 @@ TextWatcher {
 		@Override
 		protected Void doInBackground(String... params) {
 
-			try{
+			try {
 				HttpClient httpClient = new DefaultHttpClient();
 				HttpPost httpPost = new HttpPost(params[0]);
-				httpPost.setHeader("Content-Type", "application/x-www-form-urlencoded");
+				httpPost.setHeader("Content-Type",
+						"application/x-www-form-urlencoded");
 				StringEntity entity;
 
-				entity = new StringEntity("from="+params[1]+"&to="+params[2]+"&date="+params[3]+"&class=ZZ"+"&quota="+params[4], HTTP.UTF_8);
-				
+				entity = new StringEntity("from=" + params[1] + "&to="
+						+ params[2] + "&date=" + params[3] + "&class=ZZ"
+						+ "&quota=" + params[4], HTTP.UTF_8);
+
 				httpPost.setEntity(entity);
 				ResponseHandler<String> responseHandler = new BasicResponseHandler();
 				result = httpClient.execute(httpPost, responseHandler);
 
-			}catch(Exception e){
-
+			} catch (Exception e) {
 
 			}
 
@@ -222,20 +238,25 @@ TextWatcher {
 			System.out.println(result);
 
 			p.dismiss();
-			
-			if(!result.contains("Unable to get availability due to network error")){
 
-			Intent i = new Intent(getActivity(), TrainsSearchResult.class);
-			i.putExtra("result", result);
-			i.putExtra("day", date.getDayOfMonth()<10?"0"+date.getDayOfMonth():""+date.getDayOfMonth());
-			i.putExtra("month", String.valueOf(date.getMonth()+1));
-			i.putExtra("quota", quota.getSelectedItem().toString());
-			i.putExtra("from-to", station1.getText().toString()+" to "+station2.getText().toString());
-			startActivity(i);
+			if (!result
+					.contains("Unable to get availability due to network error")) {
+
+				Intent i = new Intent(getActivity(), TrainsSearchResult.class);
+				i.putExtra("result", result);
+				i.putExtra("day",
+						date.getDayOfMonth() < 10 ? "0" + date.getDayOfMonth()
+								: "" + date.getDayOfMonth());
+				i.putExtra("month", String.valueOf(date.getMonth() + 1));
+				i.putExtra("quota", quota.getSelectedItem().toString());
+				i.putExtra("from-to", station1.getText().toString() + " to "
+						+ station2.getText().toString());
+				startActivity(i);
 
 			} else {
 
-				BaseActivity.showAlertDialog(getActivity(), "Error", "Network Error Occured. Please try again");
+				BaseActivity.showAlertDialog(getActivity(), "Error",
+						"Network Error Occured. Please try again");
 			}
 			super.onPostExecute(res);
 		}
@@ -283,6 +304,29 @@ TextWatcher {
 		}
 		return json;
 
+	}
+
+	public class DatePickerFragment extends DialogFragment implements
+			DatePickerDialog.OnDateSetListener {
+
+		@Override
+		public Dialog onCreateDialog(Bundle savedInstanceState) {
+			// Use the current date as the default date in the picker
+			final Calendar c = Calendar.getInstance();
+			int year = c.get(Calendar.YEAR);
+			int month = c.get(Calendar.MONTH);
+			int day = c.get(Calendar.DAY_OF_MONTH);
+
+			// Create a new instance of DatePickerDialog and return it
+			return new DatePickerDialog(getActivity(), this, year, month, day);
+		}
+
+		public void onDateSet(DatePicker view, int year, int month, int day) {
+
+			dateEd.setText(day + "/" + month + 1 + "/" + year);
+
+			date = view;
+		}
 	}
 
 }
