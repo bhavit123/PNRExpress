@@ -203,7 +203,7 @@ public class MainActivity extends FragmentActivity {
 		// Pass any configuration change to the drawer toggls
 		mDrawerToggle.onConfigurationChanged(newConfig);
 	}
-
+/*
 	@Override
 	public void onBackPressed() {
 
@@ -219,5 +219,5 @@ public class MainActivity extends FragmentActivity {
 				});
 
 	}
-
+*/
 }

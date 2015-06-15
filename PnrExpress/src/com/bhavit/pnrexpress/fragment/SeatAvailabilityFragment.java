@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.Iterator;
 
 import org.apache.http.client.HttpClient;
@@ -33,6 +34,8 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
@@ -97,6 +100,7 @@ public class SeatAvailabilityFragment extends BaseFragment implements
 		});
 
 		ArrayList<String> list = new ArrayList<String>();
+		HashMap<String, String> map = new HashMap<String, String>();
 
 		JSONObject stations;
 		try {
@@ -104,8 +108,12 @@ public class SeatAvailabilityFragment extends BaseFragment implements
 			Iterator<String> names = stations.keys();
 
 			while (names.hasNext()) {
-				String element = (String) names.next();
-				list.add(element);
+				String stationCode = (String) names.next();
+				JSONObject stationDetails = stations.getJSONObject(stationCode);
+				String stationName = stationDetails.getString("name");
+				list.add(stationCode);
+				list.add(stationName);
+				map.put(stationCode, stationName);
 
 			}
 
@@ -128,6 +136,22 @@ public class SeatAvailabilityFragment extends BaseFragment implements
 				.findViewById(R.id.autoCompleteTextView1);
 		station1.addTextChangedListener(this);
 		station1.setTypeface(BaseActivity.tf);
+		station1.setOnItemSelectedListener(new OnItemSelectedListener() {
+
+			@Override
+			public void onItemSelected(AdapterView<?> arg0, View arg1,
+					int arg2, long arg3) {
+				
+				Toast.makeText(getActivity(), ((TextView)arg1).getText(), Toast.LENGTH_LONG).show();
+				
+			}
+
+			@Override
+			public void onNothingSelected(AdapterView<?> arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
 		station1.setAdapter(new ArrayAdapter<String>(getActivity(),
 				android.R.layout.simple_dropdown_item_1line, list));
 
@@ -145,34 +169,40 @@ public class SeatAvailabilityFragment extends BaseFragment implements
 			public void onClick(View v) {
 
 				if (date != null) {
-					String url2 = "http://pnrbuddy.com/hauth/seatavailtrains";
+					if (!station1.getText().toString()
+							.equals(station2.getText().toString())) {
+						String url2 = "http://pnrbuddy.com/hauth/seatavailtrains";
 
-					String dateString = (date.getDayOfMonth() < 10 ? "0"
-							+ date.getDayOfMonth() : date.getDayOfMonth())
-							+ "/"
-							+ (date.getMonth() + 1 < 10 ? "0"
-									+ (date.getMonth() + 1)
-									: date.getMonth() + 1)
-							+ "/"
-							+ date.getYear();
+						String dateString = (date.getDayOfMonth() < 10 ? "0"
+								+ date.getDayOfMonth() : date.getDayOfMonth())
+								+ "/"
+								+ (date.getMonth() + 1 < 10 ? "0"
+										+ (date.getMonth() + 1) : date
+										.getMonth() + 1) + "/" + date.getYear();
 
-					ConnectivityManager cm = (ConnectivityManager) getActivity()
-							.getSystemService(Context.CONNECTIVITY_SERVICE);
-					NetworkInfo networkInfo = cm.getActiveNetworkInfo();
-					// if no network is available networkInfo will be null
-					// otherwise check if we are connected to internet
-					if (networkInfo != null && networkInfo.isConnected()) {
+						ConnectivityManager cm = (ConnectivityManager) getActivity()
+								.getSystemService(Context.CONNECTIVITY_SERVICE);
+						NetworkInfo networkInfo = cm.getActiveNetworkInfo();
+						// if no network is available networkInfo will be null
+						// otherwise check if we are connected to internet
+						if (networkInfo != null && networkInfo.isConnected()) {
 
-						MyAsyncTask asynctask = new MyAsyncTask();
-						asynctask.execute(url2, station1.getText().toString(),
-								station2.getText().toString(), dateString,
-								AppConstants.getQuotaValue(quota
-										.getSelectedItem().toString()));
+							MyAsyncTask asynctask = new MyAsyncTask();
+							asynctask.execute(url2, station1.getText()
+									.toString(), station2.getText().toString(),
+									dateString, AppConstants
+											.getQuotaValue(quota
+													.getSelectedItem()
+													.toString()));
+						} else {
+							Toast.makeText(getActivity(),
+									"No internet connection !!",
+									Toast.LENGTH_LONG).show();
+
+						}
 					} else {
-						Toast.makeText(getActivity(),
-								"No internet connection !!", Toast.LENGTH_LONG)
-								.show();
-
+						Toast.makeText(getActivity(), "Please select date.",
+								Toast.LENGTH_LONG).show();
 					}
 				} else {
 
