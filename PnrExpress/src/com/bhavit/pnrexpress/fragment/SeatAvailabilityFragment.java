@@ -22,6 +22,7 @@ import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.ColorDrawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
@@ -31,6 +32,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.Window;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
@@ -42,6 +44,7 @@ import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -51,14 +54,15 @@ import com.bhavit.pnrexpress.R;
 import com.bhavit.pnrexpress.TrainsSearchResult;
 import com.bhavit.pnrexpress.util.AppConstants;
 
-public class SeatAvailabilityFragment extends BaseFragment implements
-		TextWatcher {
+public class SeatAvailabilityFragment extends BaseFragment implements OnClickListener{
 
 	DatePicker date;
 	Spinner quota;
-	AutoCompleteTextView station1, station2;
+	LinearLayout station1, station2;
+	TextView stationName1, stationCode1, stationName2, stationCode2;
 	Button calendar;
 	EditText dateEd;
+	ArrayList<String> list;
 
 	public SeatAvailabilityFragment() {
 	}
@@ -86,21 +90,23 @@ public class SeatAvailabilityFragment extends BaseFragment implements
 				arrow.startAnimation(AnimationUtils.loadAnimation(
 						getActivity(), R.anim.rotate));
 
-				String temp = station2.getText().toString();
+				String tempName = stationName2.getText().toString();
+				String tempCode = stationCode2.getText().toString();
 
-				station2.setText(station1.getText().toString());
+				stationName2.setText(stationName1.getText().toString());
+				stationCode2.setText(stationCode1.getText().toString());
 				station2.startAnimation(AnimationUtils.loadAnimation(
 						getActivity(), R.anim.right_to_left));
 
-				station1.setText(temp);
+				stationName1.setText(tempName);
+				stationCode1.setText(tempCode);
 				station1.startAnimation(AnimationUtils.loadAnimation(
 						getActivity(), R.anim.left_to_right));
 
 			}
 		});
 
-		ArrayList<String> list = new ArrayList<String>();
-		HashMap<String, String> map = new HashMap<String, String>();
+		list = new ArrayList<String>();
 
 		JSONObject stations;
 		try {
@@ -111,9 +117,7 @@ public class SeatAvailabilityFragment extends BaseFragment implements
 				String stationCode = (String) names.next();
 				JSONObject stationDetails = stations.getJSONObject(stationCode);
 				String stationName = stationDetails.getString("name");
-				list.add(stationCode);
-				list.add(stationName);
-				map.put(stationCode, stationName);
+				list.add(stationName +"- "+ stationCode);
 
 			}
 
@@ -132,35 +136,30 @@ public class SeatAvailabilityFragment extends BaseFragment implements
 		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		quota.setAdapter(adapter);
 
-		station1 = (AutoCompleteTextView) rootView
+		station1 = (LinearLayout) rootView
 				.findViewById(R.id.autoCompleteTextView1);
-		station1.addTextChangedListener(this);
-		station1.setTypeface(BaseActivity.tf);
-		station1.setOnItemSelectedListener(new OnItemSelectedListener() {
+		station1.setOnClickListener(this);
 
-			@Override
-			public void onItemSelected(AdapterView<?> arg0, View arg1,
-					int arg2, long arg3) {
-				
-				Toast.makeText(getActivity(), ((TextView)arg1).getText(), Toast.LENGTH_LONG).show();
-				
-			}
+		stationName1 = (TextView) rootView
+				.findViewById(R.id.textView1);
+		stationCode1 = (TextView) rootView
+				.findViewById(R.id.textView2);
 
-			@Override
-			public void onNothingSelected(AdapterView<?> arg0) {
-				// TODO Auto-generated method stub
-				
-			}
-		});
-		station1.setAdapter(new ArrayAdapter<String>(getActivity(),
-				android.R.layout.simple_dropdown_item_1line, list));
+		stationCode1.setTypeface(BaseActivity.tf);
+		stationName1.setTypeface(BaseActivity.tf);
 
-		station2 = (AutoCompleteTextView) rootView
+		station2 = (LinearLayout) rootView
 				.findViewById(R.id.autoCompleteTextView2);
-		station2.addTextChangedListener(this);
-		station2.setTypeface(BaseActivity.tf);
-		station2.setAdapter(new ArrayAdapter<String>(getActivity(),
-				android.R.layout.simple_dropdown_item_1line, list));
+		station2.setOnClickListener(this);
+
+		stationName2 = (TextView) rootView
+				.findViewById(R.id.textView3);
+		stationCode2 = (TextView) rootView
+				.findViewById(R.id.textView4);
+
+		stationCode2.setTypeface(BaseActivity.tf);
+		stationName2.setTypeface(BaseActivity.tf);
+
 
 		Button go = (Button) rootView.findViewById(R.id.button2);
 		go.setOnClickListener(new OnClickListener() {
@@ -169,8 +168,8 @@ public class SeatAvailabilityFragment extends BaseFragment implements
 			public void onClick(View v) {
 
 				if (date != null) {
-					if (!station1.getText().toString()
-							.equals(station2.getText().toString())) {
+					if (!stationCode1.getText().toString()
+							.equals(stationCode2.getText().toString())) {
 						String url2 = "http://pnrbuddy.com/hauth/seatavailtrains";
 
 						String dateString = (date.getDayOfMonth() < 10 ? "0"
@@ -188,12 +187,12 @@ public class SeatAvailabilityFragment extends BaseFragment implements
 						if (networkInfo != null && networkInfo.isConnected()) {
 
 							MyAsyncTask asynctask = new MyAsyncTask();
-							asynctask.execute(url2, station1.getText()
-									.toString(), station2.getText().toString(),
+							asynctask.execute(url2, stationCode1.getText()
+									.toString().trim(), stationCode2.getText().toString().trim(),
 									dateString, AppConstants
-											.getQuotaValue(quota
-													.getSelectedItem()
-													.toString()));
+									.getQuotaValue(quota
+											.getSelectedItem()
+											.toString()));
 						} else {
 							Toast.makeText(getActivity(),
 									"No internet connection !!",
@@ -201,7 +200,7 @@ public class SeatAvailabilityFragment extends BaseFragment implements
 
 						}
 					} else {
-						Toast.makeText(getActivity(), "Please select date.",
+						Toast.makeText(getActivity(), "Please select different stations.",
 								Toast.LENGTH_LONG).show();
 					}
 				} else {
@@ -257,6 +256,7 @@ public class SeatAvailabilityFragment extends BaseFragment implements
 
 			} catch (Exception e) {
 
+				e.printStackTrace();
 			}
 
 			return null;
@@ -279,8 +279,8 @@ public class SeatAvailabilityFragment extends BaseFragment implements
 								: "" + date.getDayOfMonth());
 				i.putExtra("month", String.valueOf(date.getMonth() + 1));
 				i.putExtra("quota", quota.getSelectedItem().toString());
-				i.putExtra("from-to", station1.getText().toString() + " to "
-						+ station2.getText().toString());
+				i.putExtra("from-to", stationCode1.getText().toString() + " to "
+						+ stationCode2.getText().toString());
 				startActivity(i);
 
 			} else {
@@ -290,24 +290,6 @@ public class SeatAvailabilityFragment extends BaseFragment implements
 			}
 			super.onPostExecute(res);
 		}
-
-	}
-
-	@Override
-	public void afterTextChanged(Editable arg0) {
-
-	}
-
-	@Override
-	public void beforeTextChanged(CharSequence s, int start, int count,
-			int after) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void onTextChanged(CharSequence s, int start, int before, int count) {
-		// TODO Auto-generated method stub
 
 	}
 
@@ -337,7 +319,7 @@ public class SeatAvailabilityFragment extends BaseFragment implements
 	}
 
 	public class DatePickerFragment extends DialogFragment implements
-			DatePickerDialog.OnDateSetListener {
+	DatePickerDialog.OnDateSetListener {
 
 		@Override
 		public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -358,5 +340,33 @@ public class SeatAvailabilityFragment extends BaseFragment implements
 			date = view;
 		}
 	}
+
+	@Override
+	public void onClick(View v) {
+		final Dialog dialog;
+		dialog = new Dialog(getActivity());
+		dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+		dialog.setContentView(R.layout.custom_dialog_station_search);
+		dialog.setCanceledOnTouchOutside(false);
+		
+		TextView heading = (TextView) dialog.findViewById(R.id.heading);
+		heading.setTypeface(BaseActivity.tf);
+
+		AutoCompleteTextView station = (AutoCompleteTextView) dialog.findViewById(R.id.stationAutoCompletetv);
+		station.setAdapter(new ArrayAdapter<String>(getActivity(),
+				android.R.layout.simple_dropdown_item_1line, list));
+		station.setThreshold(1);
+		station.setDropDownAnchor(R.id.listView1);
+
+		dialog.getWindow().setBackgroundDrawable(
+				new ColorDrawable(
+						android.graphics.Color.TRANSPARENT));
+		
+		if (!getActivity().isFinishing()) {
+			dialog.show();
+		}
+	}
+
+
 
 }

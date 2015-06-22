@@ -38,19 +38,25 @@ public class PnrFragment extends BaseFragment {
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
+			Bundle savedInstanceState) {
 		View rootView = inflater.inflate(R.layout.fragment_pnr, container, false);
 		BaseActivity.sqlHelper = new SqlHelper(getActivity().getApplicationContext());
 		BaseActivity.tf = Typeface.createFromAsset(getActivity().getAssets(), "fonts/GOTHIC.TTF");
 		BaseActivity.tfBold = Typeface.createFromAsset(getActivity().getAssets(), "fonts/gothicBold.TTF");
-		
+
+		/** Initialising app Constants***/
+		BaseActivity.metrics = getActivity().getResources().getDisplayMetrics();
+		BaseActivity.width = BaseActivity.metrics.widthPixels;
+		BaseActivity.height = BaseActivity.metrics.heightPixels;
+		/****************/
+
 		setDrawerAndSettingsButtons(rootView);
-		
+
 		SharedPreferences pfs = getActivity().getSharedPreferences("pnrexpress", 0);
 		boolean isMyServiceRunning = pfs.getBoolean("isServiceRunning", false);
-		
+
 		if (!isMyServiceRunning) { 
-			
+
 			Calendar cal = Calendar.getInstance();
 			cal.add(Calendar.SECOND, 5*60);
 
@@ -93,7 +99,7 @@ public class PnrFragment extends BaseFragment {
 					long arg3) {
 
 				TextView pnrNo = (TextView) arg1.findViewById(R.id.pnr_num);
-				
+
 				Intent i = new Intent(getActivity(), PnrActionsActivity.class);
 				i.putExtra("pnrNo", pnrNo.getText().toString().substring(5));
 				startActivity(i);
@@ -126,7 +132,7 @@ public class PnrFragment extends BaseFragment {
 				if (!pnr.getText().toString().equals("")) {
 
 					String pnrNumber = pnr.getText().toString(); // getting the PNR number written by user
-					
+
 					new BaseActivity().getPnrStatus(pnrNumber, getActivity());
 
 				} else {
@@ -147,15 +153,15 @@ public class PnrFragment extends BaseFragment {
 		}
 		super.onPause();
 	}
-	
+
 	private boolean isMyServiceRunning(Class<?> serviceClass) {
-	    ActivityManager manager = (ActivityManager) getActivity().getSystemService(Context.ACTIVITY_SERVICE);
-	    for (RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
-	        if (serviceClass.getName().equals(service.service.getClassName())) {
-	            return true;
-	        }
-	    }
-	    return false;
+		ActivityManager manager = (ActivityManager) getActivity().getSystemService(Context.ACTIVITY_SERVICE);
+		for (RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+			if (serviceClass.getName().equals(service.service.getClassName())) {
+				return true;
+			}
+		}
+		return false;
 	}
-	
+
 }
