@@ -36,6 +36,7 @@ import android.view.Window;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
@@ -167,47 +168,52 @@ public class SeatAvailabilityFragment extends BaseFragment implements OnClickLis
 			@Override
 			public void onClick(View v) {
 
-				if (date != null) {
-					if (!stationCode1.getText().toString()
-							.equals(stationCode2.getText().toString())) {
-						String url2 = "http://pnrbuddy.com/hauth/seatavailtrains";
+				if(!stationCode1.getText().toString().equals("") && !stationCode1.getText().toString().equals("")){
+					if (date != null) {
+						if (!stationCode1.getText().toString()
+								.equals(stationCode2.getText().toString())) {
+							String url2 = "http://pnrbuddy.com/hauth/seatavailtrains";
 
-						String dateString = (date.getDayOfMonth() < 10 ? "0"
-								+ date.getDayOfMonth() : date.getDayOfMonth())
-								+ "/"
-								+ (date.getMonth() + 1 < 10 ? "0"
-										+ (date.getMonth() + 1) : date
-										.getMonth() + 1) + "/" + date.getYear();
+							String dateString = (date.getDayOfMonth() < 10 ? "0"
+									+ date.getDayOfMonth() : date.getDayOfMonth())
+									+ "/"
+									+ (date.getMonth() + 1 < 10 ? "0"
+											+ (date.getMonth() + 1) : date
+											.getMonth() + 1) + "/" + date.getYear();
 
-						ConnectivityManager cm = (ConnectivityManager) getActivity()
-								.getSystemService(Context.CONNECTIVITY_SERVICE);
-						NetworkInfo networkInfo = cm.getActiveNetworkInfo();
-						// if no network is available networkInfo will be null
-						// otherwise check if we are connected to internet
-						if (networkInfo != null && networkInfo.isConnected()) {
+							ConnectivityManager cm = (ConnectivityManager) getActivity()
+									.getSystemService(Context.CONNECTIVITY_SERVICE);
+							NetworkInfo networkInfo = cm.getActiveNetworkInfo();
+							// if no network is available networkInfo will be null
+							// otherwise check if we are connected to internet
+							if (networkInfo != null && networkInfo.isConnected()) {
 
-							MyAsyncTask asynctask = new MyAsyncTask();
-							asynctask.execute(url2, stationCode1.getText()
-									.toString().trim(), stationCode2.getText().toString().trim(),
-									dateString, AppConstants
-									.getQuotaValue(quota
-											.getSelectedItem()
-											.toString()));
+								MyAsyncTask asynctask = new MyAsyncTask();
+								asynctask.execute(url2, stationCode1.getText()
+										.toString().trim(), stationCode2.getText().toString().trim(),
+										dateString, AppConstants
+										.getQuotaValue(quota
+												.getSelectedItem()
+												.toString()));
+							} else {
+								Toast.makeText(getActivity(),
+										"No internet connection !!",
+										Toast.LENGTH_LONG).show();
+
+							}
 						} else {
-							Toast.makeText(getActivity(),
-									"No internet connection !!",
+							Toast.makeText(getActivity(), "Please select different stations.",
 									Toast.LENGTH_LONG).show();
-
 						}
 					} else {
-						Toast.makeText(getActivity(), "Please select different stations.",
+
+						Toast.makeText(getActivity(), "Please select date.",
 								Toast.LENGTH_LONG).show();
+
 					}
 				} else {
-
-					Toast.makeText(getActivity(), "Please select date.",
+					Toast.makeText(getActivity(), "Please select station.",
 							Toast.LENGTH_LONG).show();
-
 				}
 			}
 		});
@@ -342,26 +348,63 @@ public class SeatAvailabilityFragment extends BaseFragment implements OnClickLis
 	}
 
 	@Override
-	public void onClick(View v) {
+	public void onClick(final View v) {
 		final Dialog dialog;
 		dialog = new Dialog(getActivity());
 		dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
 		dialog.setContentView(R.layout.custom_dialog_station_search);
 		dialog.setCanceledOnTouchOutside(false);
-		
+
 		TextView heading = (TextView) dialog.findViewById(R.id.heading);
 		heading.setTypeface(BaseActivity.tf);
 
-		AutoCompleteTextView station = (AutoCompleteTextView) dialog.findViewById(R.id.stationAutoCompletetv);
+		final AutoCompleteTextView station = (AutoCompleteTextView) dialog.findViewById(R.id.stationAutoCompletetv);
 		station.setAdapter(new ArrayAdapter<String>(getActivity(),
 				android.R.layout.simple_dropdown_item_1line, list));
 		station.setThreshold(1);
 		station.setDropDownAnchor(R.id.listView1);
 
+		Button tick = (Button) dialog.findViewById(R.id.btn_tick);
+		tick.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View view) {
+
+				if(!station.getText().toString().equals("")){
+					if(v.getId() == R.id.autoCompleteTextView1){
+						stationName1.setText(station.getText().toString().split("-")[0]);
+						stationCode1.setText(station.getText().toString().split("-")[1].trim());
+
+					} else {
+						stationName2.setText(station.getText().toString().split("-")[0]);
+						stationCode2.setText(station.getText().toString().split("-")[1].trim());
+					}
+				} else {
+					if(v.getId() == R.id.autoCompleteTextView1){
+						stationName1.setText("FROM");
+						stationCode1.setText("");
+
+					} else {
+						stationName2.setText("TO");
+						stationCode2.setText("");
+					}
+				}
+				
+				station.clearFocus();
+					
+				InputMethodManager imm = (InputMethodManager)getActivity().getSystemService(
+				      Context.INPUT_METHOD_SERVICE);
+				imm.hideSoftInputFromWindow(station.getWindowToken(), InputMethodManager.HIDE_IMPLICIT_ONLY);
+				
+				dialog.dismiss();
+				
+			}
+		});
+
 		dialog.getWindow().setBackgroundDrawable(
 				new ColorDrawable(
 						android.graphics.Color.TRANSPARENT));
-		
+
 		if (!getActivity().isFinishing()) {
 			dialog.show();
 		}

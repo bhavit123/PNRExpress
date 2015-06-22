@@ -37,6 +37,7 @@
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
                 android:ems="10"
+                android:inputType="textNoSuggestions"
                 android:hint="Enter station name or code"
                 android:paddingLeft="10dp"
                 android:paddingRight="10dp" >
@@ -65,12 +66,12 @@
             <!-- android:background="@drawable/blue_button" -->
 
             <Button
-                android:id="@+id/imageButton1"
+                android:id="@+id/btn_tick"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:layout_marginTop="30dp"
-                android:background="@drawable/tick" />
+                android:background="@drawable/tick_selector" />
 
         </LinearLayout>
 

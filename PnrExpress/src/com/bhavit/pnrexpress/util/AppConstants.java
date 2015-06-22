@@ -1,12 +1,13 @@
 package com.bhavit.pnrexpress.util;
 
 import java.util.HashMap;
+import java.util.Hashtable;
 
 public class AppConstants {
 
-	public static HashMap<String, String> quotas = new HashMap<String, String>();
+	public static Hashtable<String, String> quotas = new Hashtable<String, String>();
 	
-	public static HashMap<String, String> getQuotas() {
+	public static Hashtable<String, String> getQuotas() {
 		
 	
 		quotas.put("GENERAL", "GN");
