@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    android:gravity="center_vertical" >
+
+    <LinearLayout
+        android:id="@+id/textView1"
+        android:layout_width="0dp"
+        android:layout_weight="0.4"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center" >
+
+        <TextView
+            android:id="@+id/textView4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Bandra Terminus"
+            android:textSize="13sp"
+            android:textColor="#FFFFFF" />
+
+        <TextView
+            android:id="@+id/textView5"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="BDTS"
+            android:textSize="15sp"
+            android:textColor="#FFFFFF" />
+
+        </LinearLayout>
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="0dp"
+        android:layout_weight="0.2"
+        android:layout_height="wrap_content"
+        android:text="TO"
+        android:gravity="center"
+        android:textSize="20sp"
+        android:textColor="#FFFFFF" />
+
+    <LinearLayout
+        android:id="@+id/textView3"
+        android:layout_width="0dp"
+        android:layout_weight="0.4"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center" >
+
+        <TextView
+            android:id="@+id/textView6"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Bikaner Jn"
+            android:textSize="13sp"
+            android:textColor="#FFFFFF" />
+
+        <TextView
+            android:id="@+id/textView7"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="BKN"
+            android:textSize="15sp"
+            android:textColor="#FFFFFF" />
+
+        </LinearLayout>
+
+</LinearLayout>

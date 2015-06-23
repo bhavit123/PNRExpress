@@ -1,4 +1,4 @@
-package com.bhavit.pnrexpress.util;
+package com.bhavit.pnrexpress.adapters;
 
 import java.util.List;
 

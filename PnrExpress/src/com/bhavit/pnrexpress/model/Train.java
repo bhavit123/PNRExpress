@@ -10,13 +10,14 @@ public class Train {
 	String ArrivalTime;
 	String travelTime;
 	String runsOn;
+	int[] runsOnColor;
 	String classes;
 	String searchQuery;
 	
 
 	public Train(String trainName, String trainNo, String fromStation,
 			String toStation, String departureTime, String arrivalTime,
-			String travelTime, String runsOn, String classes, String searchQuery) {
+			String travelTime, String runsOn, int[] runsOnColor, String classes, String searchQuery) {
 		super();
 		this.trainName = trainName;
 		this.trainNo = trainNo;
@@ -28,7 +29,17 @@ public class Train {
 		this.runsOn = runsOn;
 		this.searchQuery = searchQuery;
 		this.classes = classes;
+		this.runsOnColor = runsOnColor;
 	}
+	
+	public int[] getRunsOnColor() {
+		return runsOnColor;
+	}
+
+	public void setRunsOnColor(int[] runsOnColor) {
+		this.runsOnColor = runsOnColor;
+	}
+
 	public String getTrainName() {
 		return trainName;
 	}

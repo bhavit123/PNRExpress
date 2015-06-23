@@ -1,4 +1,4 @@
-package com.bhavit.pnrexpress.util;
+package com.bhavit.pnrexpress.adapters;
 
 import java.util.List;
 import java.util.Locale;
@@ -20,7 +20,6 @@ public class CustomListViewAdapterTrainsList extends ArrayAdapter<Train> {
 
 	Context context;
 	int rid;
-
 	public CustomListViewAdapterTrainsList(Context context, int resourceId,
 			List<Train> items) {
 		super(context, resourceId, items);
@@ -36,6 +35,14 @@ public class CustomListViewAdapterTrainsList extends ArrayAdapter<Train> {
 		TextView departureTime;
 		TextView travelTime;
 		ImageView icon;
+		TextView monday;
+		TextView tuesday;
+		TextView wednesday;
+		TextView thursday;
+		TextView friday;
+		TextView saturday;
+		TextView sunday;
+
 	}
 
 	public View getView(int position, View convertView, ViewGroup parent) {
@@ -52,6 +59,13 @@ public class CustomListViewAdapterTrainsList extends ArrayAdapter<Train> {
 			holder.departureTime = (TextView) convertView.findViewById(R.id.departure_time);
 			holder.travelTime = (TextView) convertView.findViewById(R.id.travel_time);
 			holder.icon = (ImageView) convertView.findViewById(R.id.train_icon);
+			holder.monday = (TextView) convertView.findViewById(R.id.monday);
+			holder.tuesday = (TextView) convertView.findViewById(R.id.tuesday);
+			holder.wednesday = (TextView) convertView.findViewById(R.id.wednesday);
+			holder.thursday = (TextView) convertView.findViewById(R.id.thursday);
+			holder.friday = (TextView) convertView.findViewById(R.id.friday);
+			holder.saturday = (TextView) convertView.findViewById(R.id.saturday);
+			holder.sunday = (TextView) convertView.findViewById(R.id.sunday);
 
 			convertView.setTag(holder);
 		} else
@@ -64,11 +78,26 @@ public class CustomListViewAdapterTrainsList extends ArrayAdapter<Train> {
 		holder.departureTime.setText("DEPARTURE: "+rowItem.getDepartureTime());
 		holder.travelTime.setText("TRAVEL-TIME: "+rowItem.getTravelTime());
 		holder.icon.setImageResource(R.drawable.list_train_1);
-		
+
 		holder.trainNameNum.setTypeface(tf);
 		holder.arrivalTime.setTypeface(tf);
 		holder.departureTime.setTypeface(tf);
-		holder.travelTime.setTypeface(tf);;
+		holder.travelTime.setTypeface(tf);
+
+		holder.monday.setBackgroundColor(rowItem.getRunsOnColor()[0]);
+
+		holder.tuesday.setBackgroundColor(rowItem.getRunsOnColor()[1]);
+
+		holder.wednesday.setBackgroundColor(rowItem.getRunsOnColor()[2]);
+
+		holder.thursday.setBackgroundColor(rowItem.getRunsOnColor()[3]);
+
+		holder.friday.setBackgroundColor(rowItem.getRunsOnColor()[4]);
+
+		holder.saturday.setBackgroundColor(rowItem.getRunsOnColor()[5]);
+
+		holder.sunday.setBackgroundColor(rowItem.getRunsOnColor()[6]);
+
 
 		return convertView;
 	}

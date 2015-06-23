@@ -44,14 +44,15 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bhavit.pnrexpress.adapters.CustomListViewAdapterCheckedPnrs;
+import com.bhavit.pnrexpress.adapters.CustomListViewAdapterPassengers;
 import com.bhavit.pnrexpress.dao.SqlHelper;
 import com.bhavit.pnrexpress.fragment.PnrFragment;
 import com.bhavit.pnrexpress.model.LastStatus;
 import com.bhavit.pnrexpress.model.Passenger;
 import com.bhavit.pnrexpress.model.PnrDetail;
 import com.bhavit.pnrexpress.model.Station;
-import com.bhavit.pnrexpress.util.CustomListViewAdapterCheckedPnrs;
-import com.bhavit.pnrexpress.util.CustomListViewAdapterPassengers;
+import com.bhavit.pnrexpress.util.RestClient;
 import com.jaunt.Element;
 import com.jaunt.Elements;
 import com.jaunt.UserAgent;
@@ -278,15 +279,12 @@ public class BaseActivity extends Activity {
 
 			pnr = params[1];
 
-			HttpClient httpClient = new DefaultHttpClient();
-			HttpPost httpPost = new HttpPost(params[0]);
-			httpPost.setHeader("Content-Type", "application/x-www-form-urlencoded");
-
-			ResponseHandler<String> responseHandler = new BasicResponseHandler();
+			RestClient client = new RestClient(params[0]);
+			client.addHeader("Content-Type", "application/x-www-form-urlencoded");
+			client.addStringBody("pnr="+params[1]);
+		
 			try {
-				StringEntity entity = new StringEntity("pnr="+params[1], HTTP.UTF_8);
-				httpPost.setEntity(entity);
-				resultPnr = httpClient.execute(httpPost, responseHandler);
+				resultPnr  = client.executePost();
 				/*JSONObject obj = new JSONObject(resultPnr);
 				JSONArray journey = obj.getJSONArray("Journey");
 				String trainNo = ((JSONArray)journey.get(0)).get(1).toString();*/
@@ -299,14 +297,13 @@ public class BaseActivity extends Activity {
 
 
 				if(!sqlHelper.doesPnrExist(pnr)){
+					
 					//Getting the route train information 
-					httpClient = new DefaultHttpClient();
-					httpPost = new HttpPost("http://pnrbuddy.com/hauth/trainroute");
-					httpPost.setHeader("Content-Type", "application/x-www-form-urlencoded");
-					entity = new StringEntity("trainno="+trainNo, HTTP.UTF_8);
-					httpPost.setEntity(entity);
+					RestClient client2 = new RestClient("http://pnrbuddy.com/hauth/trainroute");
+					client2.addHeader("Content-Type", "application/x-www-form-urlencoded");
+					client2.addStringBody("trainno="+trainNo);
 
-					resultRoute = httpClient.execute(httpPost, responseHandler);
+					resultRoute = client2.executePost();
 
 
 					UserAgent userAgent = new UserAgent();
@@ -343,12 +340,6 @@ public class BaseActivity extends Activity {
 
 				}
 
-			} catch (ClientProtocolException e) {
-
-				e.printStackTrace();
-			} catch (IOException e) {
-
-				e.printStackTrace();
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -646,8 +637,4 @@ public class BaseActivity extends Activity {
 		return month;
 	}
 
-	public static void hideSoftKeyboard(Activity activity) {
-	    InputMethodManager inputMethodManager = (InputMethodManager)  activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
-	    inputMethodManager.hideSoftInputFromWindow(activity.getCurrentFocus().getWindowToken(), 0);
-	}
 }

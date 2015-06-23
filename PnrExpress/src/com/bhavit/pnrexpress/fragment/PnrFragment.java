@@ -25,9 +25,9 @@ import android.widget.TextView;
 import com.bhavit.pnrexpress.BaseActivity;
 import com.bhavit.pnrexpress.PnrActionsActivity;
 import com.bhavit.pnrexpress.R;
+import com.bhavit.pnrexpress.adapters.CustomListViewAdapterCheckedPnrs;
 import com.bhavit.pnrexpress.dao.SqlHelper;
 import com.bhavit.pnrexpress.service.BackgroundUpdateService;
-import com.bhavit.pnrexpress.util.CustomListViewAdapterCheckedPnrs;
 
 public class PnrFragment extends BaseFragment {
 

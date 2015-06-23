@@ -19,8 +19,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bhavit.pnrexpress.adapters.CustomListViewAdapterStationsList;
 import com.bhavit.pnrexpress.model.Station;
-import com.bhavit.pnrexpress.util.CustomListViewAdapterStationsList;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;

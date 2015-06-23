@@ -38,6 +38,7 @@ import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -46,6 +47,7 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -53,15 +55,19 @@ import android.widget.Toast;
 import com.bhavit.pnrexpress.BaseActivity;
 import com.bhavit.pnrexpress.R;
 import com.bhavit.pnrexpress.TrainsSearchResult;
+import com.bhavit.pnrexpress.adapters.CustomListAdapterSearchHistory;
+import com.bhavit.pnrexpress.model.SearchHistory;
 import com.bhavit.pnrexpress.util.AppConstants;
+import com.bhavit.pnrexpress.util.RestClient;
 
-public class SeatAvailabilityFragment extends BaseFragment implements OnClickListener{
+public class SeatAvailabilityFragment extends BaseFragment implements
+OnClickListener {
 
 	DatePicker date;
 	Spinner quota;
 	LinearLayout station1, station2;
 	TextView stationName1, stationCode1, stationName2, stationCode2;
-	Button calendar;
+	Button calendar, searchHistory;
 	EditText dateEd;
 	ArrayList<String> list;
 
@@ -81,9 +87,69 @@ public class SeatAvailabilityFragment extends BaseFragment implements OnClickLis
 				.findViewById(R.id.textView_heading);
 		heading.setTypeface(BaseActivity.tf);
 
+		searchHistory = (Button) rootView.findViewById(R.id.btn_searchHistory);
+		searchHistory.setTypeface(BaseActivity.tf);
+		searchHistory.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+
+				final Dialog dialog;
+				dialog = new Dialog(getActivity());
+				dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+				dialog.setContentView(R.layout.custom_dialog_search_history);
+
+				TextView heading = (TextView) dialog.findViewById(R.id.heading);
+				heading.setTypeface(BaseActivity.tf);
+
+				ListView searchList = (ListView) dialog
+						.findViewById(R.id.listView1);
+				CustomListAdapterSearchHistory adapter = new CustomListAdapterSearchHistory(
+						getActivity(),
+						R.layout.custom_list_item_search_history,
+						BaseActivity.sqlHelper.getSearchHistory());
+				searchList.setAdapter(adapter);
+
+				searchList.setOnItemClickListener(new OnItemClickListener() {
+
+					@Override
+					public void onItemClick(AdapterView<?> arg0, View arg1,
+							int arg2, long arg3) {
+
+						TextView fromStationName = (TextView) arg1
+								.findViewById(R.id.textView4);
+						TextView fromStationCode = (TextView) arg1
+								.findViewById(R.id.textView5);
+						TextView toStationName = (TextView) arg1
+								.findViewById(R.id.textView6);
+						TextView toStationCode = (TextView) arg1
+								.findViewById(R.id.textView7);
+
+						stationName1.setText(fromStationName.getText());
+						stationCode1.setText(fromStationCode.getText());
+						stationCode1.setVisibility(View.VISIBLE);
+						stationName2.setText(toStationName.getText());
+						stationCode2.setText(toStationCode.getText());
+						stationCode2.setVisibility(View.VISIBLE);
+
+						dialog.dismiss();
+
+					}
+
+				});
+
+				dialog.getWindow().setBackgroundDrawable(
+						new ColorDrawable(android.graphics.Color.TRANSPARENT));
+
+				if (!getActivity().isFinishing()) {
+					dialog.show();
+				}
+
+			}
+		});
+
 		final ImageView arrow = (ImageView) rootView
 				.findViewById(R.id.imageView2);
-
 		arrow.setOnClickListener(new View.OnClickListener() {
 
 			@Override
@@ -118,7 +184,7 @@ public class SeatAvailabilityFragment extends BaseFragment implements OnClickLis
 				String stationCode = (String) names.next();
 				JSONObject stationDetails = stations.getJSONObject(stationCode);
 				String stationName = stationDetails.getString("name");
-				list.add(stationName +"- "+ stationCode);
+				list.add(stationName + "- " + stationCode);
 
 			}
 
@@ -128,7 +194,7 @@ public class SeatAvailabilityFragment extends BaseFragment implements OnClickLis
 			e.printStackTrace();
 		}
 
-		String[] array = new String[10];
+		String[] array = new String[2];
 		AppConstants.getQuotas().keySet().toArray(array);
 		quota = (Spinner) rootView.findViewById(R.id.spinner2);
 		quota.setPrompt("Quota");
@@ -136,15 +202,14 @@ public class SeatAvailabilityFragment extends BaseFragment implements OnClickLis
 				android.R.layout.simple_spinner_item, array);
 		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		quota.setAdapter(adapter);
+		quota.setSelection(1);
 
 		station1 = (LinearLayout) rootView
 				.findViewById(R.id.autoCompleteTextView1);
 		station1.setOnClickListener(this);
 
-		stationName1 = (TextView) rootView
-				.findViewById(R.id.textView1);
-		stationCode1 = (TextView) rootView
-				.findViewById(R.id.textView2);
+		stationName1 = (TextView) rootView.findViewById(R.id.textView1);
+		stationCode1 = (TextView) rootView.findViewById(R.id.textView2);
 
 		stationCode1.setTypeface(BaseActivity.tf);
 		stationName1.setTypeface(BaseActivity.tf);
@@ -153,14 +218,11 @@ public class SeatAvailabilityFragment extends BaseFragment implements OnClickLis
 				.findViewById(R.id.autoCompleteTextView2);
 		station2.setOnClickListener(this);
 
-		stationName2 = (TextView) rootView
-				.findViewById(R.id.textView3);
-		stationCode2 = (TextView) rootView
-				.findViewById(R.id.textView4);
+		stationName2 = (TextView) rootView.findViewById(R.id.textView3);
+		stationCode2 = (TextView) rootView.findViewById(R.id.textView4);
 
 		stationCode2.setTypeface(BaseActivity.tf);
 		stationName2.setTypeface(BaseActivity.tf);
-
 
 		Button go = (Button) rootView.findViewById(R.id.button2);
 		go.setOnClickListener(new OnClickListener() {
@@ -168,29 +230,37 @@ public class SeatAvailabilityFragment extends BaseFragment implements OnClickLis
 			@Override
 			public void onClick(View v) {
 
-				if(!stationCode1.getText().toString().equals("") && !stationCode1.getText().toString().equals("")){
+				if (!stationCode1.getText().toString().equals("")
+						&& !stationCode1.getText().toString().equals("")) {
 					if (date != null) {
 						if (!stationCode1.getText().toString()
 								.equals(stationCode2.getText().toString())) {
 							String url2 = "http://pnrbuddy.com/hauth/seatavailtrains";
 
 							String dateString = (date.getDayOfMonth() < 10 ? "0"
-									+ date.getDayOfMonth() : date.getDayOfMonth())
+									+ date.getDayOfMonth()
+									: date.getDayOfMonth())
 									+ "/"
 									+ (date.getMonth() + 1 < 10 ? "0"
 											+ (date.getMonth() + 1) : date
-											.getMonth() + 1) + "/" + date.getYear();
+											.getMonth() + 1)
+											+ "/"
+											+ date.getYear();
 
 							ConnectivityManager cm = (ConnectivityManager) getActivity()
-									.getSystemService(Context.CONNECTIVITY_SERVICE);
+									.getSystemService(
+											Context.CONNECTIVITY_SERVICE);
 							NetworkInfo networkInfo = cm.getActiveNetworkInfo();
-							// if no network is available networkInfo will be null
+							// if no network is available networkInfo will be
+							// null
 							// otherwise check if we are connected to internet
-							if (networkInfo != null && networkInfo.isConnected()) {
+							if (networkInfo != null
+									&& networkInfo.isConnected()) {
 
 								MyAsyncTask asynctask = new MyAsyncTask();
 								asynctask.execute(url2, stationCode1.getText()
-										.toString().trim(), stationCode2.getText().toString().trim(),
+										.toString().trim(), stationCode2
+										.getText().toString().trim(),
 										dateString, AppConstants
 										.getQuotaValue(quota
 												.getSelectedItem()
@@ -202,7 +272,8 @@ public class SeatAvailabilityFragment extends BaseFragment implements OnClickLis
 
 							}
 						} else {
-							Toast.makeText(getActivity(), "Please select different stations.",
+							Toast.makeText(getActivity(),
+									"Please select different stations.",
 									Toast.LENGTH_LONG).show();
 						}
 					} else {
@@ -246,19 +317,14 @@ public class SeatAvailabilityFragment extends BaseFragment implements OnClickLis
 		protected Void doInBackground(String... params) {
 
 			try {
-				HttpClient httpClient = new DefaultHttpClient();
-				HttpPost httpPost = new HttpPost(params[0]);
-				httpPost.setHeader("Content-Type",
+
+				RestClient client = new RestClient(params[0]);
+				client.addHeader("Content-Type",
 						"application/x-www-form-urlencoded");
-				StringEntity entity;
-
-				entity = new StringEntity("from=" + params[1] + "&to="
-						+ params[2] + "&date=" + params[3] + "&class=ZZ"
-						+ "&quota=" + params[4], HTTP.UTF_8);
-
-				httpPost.setEntity(entity);
-				ResponseHandler<String> responseHandler = new BasicResponseHandler();
-				result = httpClient.execute(httpPost, responseHandler);
+				client.addStringBody("from=" + params[1] + "&to=" + params[2]
+						+ "&date=" + params[3] + "&class=ZZ" + "&quota="
+						+ params[4]);
+				result = client.executePost();
 
 			} catch (Exception e) {
 
@@ -275,24 +341,45 @@ public class SeatAvailabilityFragment extends BaseFragment implements OnClickLis
 
 			p.dismiss();
 
-			if (!result
-					.contains("Unable to get availability due to network error")) {
+			if (result != null) {
+				if (!result
+						.contains("Unable to get availability due to network error")) {
 
-				Intent i = new Intent(getActivity(), TrainsSearchResult.class);
-				i.putExtra("result", result);
-				i.putExtra("day",
-						date.getDayOfMonth() < 10 ? "0" + date.getDayOfMonth()
-								: "" + date.getDayOfMonth());
-				i.putExtra("month", String.valueOf(date.getMonth() + 1));
-				i.putExtra("quota", quota.getSelectedItem().toString());
-				i.putExtra("from-to", stationCode1.getText().toString() + " to "
-						+ stationCode2.getText().toString());
-				startActivity(i);
+					boolean alreadyExist = BaseActivity.sqlHelper.searchHistoryExist(
+							stationName1.getText().toString(), stationCode1.getText().toString(),
+							stationName2.getText().toString(), stationCode2.getText().toString());
+
+					if(!alreadyExist){
+						BaseActivity.sqlHelper
+						.insertInSearchHistory(new SearchHistory(
+								stationName1.getText() + "- "
+										+ stationCode1.getText(),
+										stationName2.getText() + "- "
+												+ stationCode2.getText()));
+					}
+					Intent i = new Intent(getActivity(),
+							TrainsSearchResult.class);
+					i.putExtra("result", result);
+					i.putExtra(
+							"day",
+							date.getDayOfMonth() < 10 ? "0"
+									+ date.getDayOfMonth() : ""
+									+ date.getDayOfMonth());
+					i.putExtra("month", String.valueOf(date.getMonth() + 1));
+					i.putExtra("quota", quota.getSelectedItem().toString());
+					i.putExtra("from-to", stationCode1.getText().toString()
+							+ " to " + stationCode2.getText().toString());
+					startActivity(i);
+
+				} else {
+
+					BaseActivity.showAlertDialog(getActivity(), "Sorry",
+							"No trains available between these stations.");
+				}
 
 			} else {
-
 				BaseActivity.showAlertDialog(getActivity(), "Error",
-						"Network Error Occured. Please try again");
+						"Could not connect to server. Please try again");
 			}
 			super.onPostExecute(res);
 		}
@@ -358,7 +445,8 @@ public class SeatAvailabilityFragment extends BaseFragment implements OnClickLis
 		TextView heading = (TextView) dialog.findViewById(R.id.heading);
 		heading.setTypeface(BaseActivity.tf);
 
-		final AutoCompleteTextView station = (AutoCompleteTextView) dialog.findViewById(R.id.stationAutoCompletetv);
+		final AutoCompleteTextView station = (AutoCompleteTextView) dialog
+				.findViewById(R.id.stationAutoCompletetv);
 		station.setAdapter(new ArrayAdapter<String>(getActivity(),
 				android.R.layout.simple_dropdown_item_1line, list));
 		station.setThreshold(1);
@@ -370,46 +458,42 @@ public class SeatAvailabilityFragment extends BaseFragment implements OnClickLis
 			@Override
 			public void onClick(View view) {
 
-				if(!station.getText().toString().equals("")){
-					if(v.getId() == R.id.autoCompleteTextView1){
-						stationName1.setText(station.getText().toString().split("-")[0]);
-						stationCode1.setText(station.getText().toString().split("-")[1].trim());
+				if (station.getText().toString().contains("-"))
+					if (!station.getText().toString().equals("")) {
+						if (v.getId() == R.id.autoCompleteTextView1) {
+							stationName1.setText(station.getText().toString()
+									.split("-")[0]);
+							stationCode1.setText(station.getText().toString()
+									.split("-")[1].trim());
+							stationCode1.setVisibility(View.VISIBLE);
 
-					} else {
-						stationName2.setText(station.getText().toString().split("-")[0]);
-						stationCode2.setText(station.getText().toString().split("-")[1].trim());
+						} else {
+							stationName2.setText(station.getText().toString()
+									.split("-")[0]);
+							stationCode2.setText(station.getText().toString()
+									.split("-")[1].trim());
+							stationCode2.setVisibility(View.VISIBLE);
+						}
 					}
-				} else {
-					if(v.getId() == R.id.autoCompleteTextView1){
-						stationName1.setText("FROM");
-						stationCode1.setText("");
 
-					} else {
-						stationName2.setText("TO");
-						stationCode2.setText("");
-					}
-				}
-				
 				station.clearFocus();
-					
-				InputMethodManager imm = (InputMethodManager)getActivity().getSystemService(
-				      Context.INPUT_METHOD_SERVICE);
-				imm.hideSoftInputFromWindow(station.getWindowToken(), InputMethodManager.HIDE_IMPLICIT_ONLY);
-				
+
+				InputMethodManager imm = (InputMethodManager) getActivity()
+						.getSystemService(Context.INPUT_METHOD_SERVICE);
+				imm.hideSoftInputFromWindow(station.getWindowToken(),
+						InputMethodManager.HIDE_IMPLICIT_ONLY);
+
 				dialog.dismiss();
-				
+
 			}
 		});
 
 		dialog.getWindow().setBackgroundDrawable(
-				new ColorDrawable(
-						android.graphics.Color.TRANSPARENT));
+				new ColorDrawable(android.graphics.Color.TRANSPARENT));
 
 		if (!getActivity().isFinishing()) {
 			dialog.show();
 		}
 	}
-
-
 
 }

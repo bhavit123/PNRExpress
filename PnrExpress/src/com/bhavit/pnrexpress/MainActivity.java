@@ -43,6 +43,7 @@ public class MainActivity extends FragmentActivity {
 
 	private ArrayList<NavDrawerItem> navDrawerItems;
 	private NavDrawerListAdapter adapter;
+	int selectedPosition = 0;
 
 	@SuppressLint("NewApi")
 	@Override
@@ -98,10 +99,10 @@ public class MainActivity extends FragmentActivity {
 
 		mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
 				R.string.app_name, // nav drawer open - description for
-									// accessibility
+				// accessibility
 				R.string.app_name // nav drawer close - description for
-									// accessibility
-		) {
+				// accessibility
+				) {
 			public void onDrawerClosed(View view) {
 				// getActionBar().setTitle(mTitle);
 				// calling onPrepareOptionsMenu() to show action bar icons
@@ -126,7 +127,7 @@ public class MainActivity extends FragmentActivity {
 	 * Slide menu item click listener
 	 * */
 	private class SlideMenuClickListener implements
-			ListView.OnItemClickListener {
+	ListView.OnItemClickListener {
 		@Override
 		public void onItemClick(AdapterView<?> parent, View view, int position,
 				long id) {
@@ -163,9 +164,10 @@ public class MainActivity extends FragmentActivity {
 		}
 
 		if (fragment != null) {
+			selectedPosition = position;
 			FragmentManager fragmentManager = getSupportFragmentManager();
 			fragmentManager.beginTransaction()
-					.replace(R.id.frame_container, fragment).commit();
+			.replace(R.id.frame_container, fragment).commit();
 
 			// update selected item and title, then close the drawer
 			mDrawerList.setItemChecked(position, true);
@@ -203,21 +205,14 @@ public class MainActivity extends FragmentActivity {
 		// Pass any configuration change to the drawer toggls
 		mDrawerToggle.onConfigurationChanged(newConfig);
 	}
-/*
+
 	@Override
 	public void onBackPressed() {
 
-		BaseActivity.showAlertDialogTwoButtons(MainActivity.this, "Exit",
-				"Do you want to exit application?", new OnClickListener() {
-
-					@Override
-					public void onClick(View v) {
-
-						finish();
-
-					}
-				});
-
+		if (selectedPosition != 0) {
+			displayView(0);
+		} else {
+			super.onBackPressed();
+		}
 	}
-*/
 }
