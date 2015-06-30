@@ -9,6 +9,9 @@ public class Availability {
 		this.date = date;
 		this.availability = availability;
 	}
+	public Availability(){
+		
+	}
 	public String getDate() {
 		return date;
 	}

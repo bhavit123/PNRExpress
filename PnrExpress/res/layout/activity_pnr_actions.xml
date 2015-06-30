@@ -60,4 +60,17 @@
         android:layout_marginTop="5dp"
         android:background="@drawable/settings_button" />
 
+    <Button
+        android:id="@+id/btn_livestatus"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/btn_get_route"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/black_button"
+        style="@style/ButtonText"
+        android:textSize="23sp"
+        android:text="LIVE RUNNING STATUS" />
+
+    
 </RelativeLayout>

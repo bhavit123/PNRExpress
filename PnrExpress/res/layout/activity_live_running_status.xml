@@ -1,0 +1,49 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:sat="http://schemas.android.com/apk/lib/android.view.ext"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/back"
+    android:gravity="center_horizontal"
+    tools:context=".ProductsInformation" >
+
+    <ImageView
+        android:id="@+id/divider"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/textView_date"
+        android:layout_marginTop="7dp"
+        android:src="@drawable/quote_title_underline" />
+
+    <TextView
+        android:id="@+id/textView_trainname"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/iv_lu_companyLogo"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="10dp"
+        android:text="Ranakpur Express(14707)"
+        android:textColor="#FFFFFF"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+
+    <ListView
+        android:id="@+id/stations_list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/divider" >
+
+    </ListView>
+
+    <TextView
+        android:id="@+id/textView_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/textView_trainname"
+        android:layout_centerHorizontal="true"
+        android:text="30 Jun 2015"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+</RelativeLayout>

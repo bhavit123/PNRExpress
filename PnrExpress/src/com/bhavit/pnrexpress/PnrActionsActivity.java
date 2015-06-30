@@ -31,8 +31,7 @@ public class PnrActionsActivity extends BaseActivity {
 					
 					Intent i = new Intent(PnrActionsActivity.this,
 							LocationActivity.class);
-					//Bundle b = new Bundle();
-					//b.putParcelableArrayList("locations", arr);
+
 					i.putExtra("pnr", pnrNo);
 					startActivity(i);
 				} catch (Exception e){
@@ -54,6 +53,22 @@ public class PnrActionsActivity extends BaseActivity {
 			}
 		});
 
+		Button liveRunningStatus = (Button) findViewById(R.id.btn_livestatus);
+		liveRunningStatus.setTypeface(tf);
+		liveRunningStatus.setOnClickListener(new View.OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				
+				Intent i = new Intent(PnrActionsActivity.this,
+						LiveRunningStatusActivity.class);
+
+				i.putExtra("tnum", "14707");
+				i.putExtra("date", "20150630");
+				startActivity(i);
+
+			}
+		});
 
 	}
 

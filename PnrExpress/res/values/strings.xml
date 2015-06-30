@@ -13,12 +13,9 @@
     <string name="publickeyishani">b33a436db02c228fe394633a2d96d8d0</string>
     <string name="privatekeyishani">741d1a2aa1f58f6faa87197511eec49d</string>
     <string name="title_activity_pnr_actions">PnrActionsActivity</string>
-    
     <string name="mapkeylive">AIzaSyDi5-DU471_y7FVyd6rNlkeUMI-f7ys3Yo</string>
     <string name="mapkeydev">AIzaSyBtwGMA25PykUr-FgHVT9f0qBe8BlQrtMI</string>
-    
     <string name="title_activity_settings">SettingsActivity</string>
-    
     <string name="classString">Class</string>
     <string name="quotaString">Quota</string>
 
@@ -26,8 +23,8 @@
     <string-array name="nav_drawer_items">
         <item>PNR Status</item>
         <item>Seat Availability</item>
+        <item>TrainRoute</item>
         <item>Seat Layout</item>
-
     </string-array>
     <string-array name="train_classes">
         <item>ALL</item>
@@ -40,7 +37,6 @@
         <item>SL</item>
         <item>2S</item>
     </string-array>
-    
     <string-array name="train_quotas">
         <item>GN</item>
         <item>CK</item>
@@ -68,5 +64,6 @@
     <!-- Content Description -->
     <string name="desc_list_item_icon">Item Icon</string>
     <string name="title_activity_trains_search_result">TrainsSearchResult</string>
+    <string name="title_activity_live_running_status">LiveRunningStatusActivity</string>
 
 </resources>

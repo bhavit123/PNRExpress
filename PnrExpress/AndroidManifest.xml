@@ -16,7 +16,7 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-    <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES"/>
+    <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES" />
 
     <permission
         android:name="com.bhavit.pnrexpress.permission.MAPS_RECEIVE"
@@ -35,7 +35,7 @@
             android:value="@integer/google_play_services_version" />
 
         <activity
-            android:name="com.bhavit.pnrexpress.MainActivity"
+            android:name=".MainActivity"
             android:configChanges="orientation"
             android:label="@string/app_name"
             android:screenOrientation="portrait"
@@ -47,7 +47,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.bhavit.pnrexpress.LocationActivity"
+            android:name=".LocationActivity"
             android:configChanges="orientation"
             android:label="LocationActivity"
             android:screenOrientation="portrait"
@@ -55,30 +55,34 @@
         </activity>
 
         <service
-            android:name="com.bhavit.pnrexpress.service.BackgroundUpdateService"
+            android:name=".service.BackgroundUpdateService"
             android:enabled="true" >
         </service>
 
-        <receiver android:name="com.bhavit.pnrexpress.broadcastreceiver.BootCompletedReceiver" >
+        <receiver android:name=".broadcastreceiver.BootCompletedReceiver" >
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
 
         <activity
-            android:name="com.bhavit.pnrexpress.PnrActionsActivity"
+            android:name=".PnrActionsActivity"
             android:label="@string/title_activity_pnr_actions"
             android:screenOrientation="portrait" >
         </activity>
         <activity
-            android:name="com.bhavit.pnrexpress.SettingsActivity"
+            android:name=".SettingsActivity"
             android:label="@string/title_activity_settings"
             android:screenOrientation="portrait" >
         </activity>
         <activity
-            android:name="com.bhavit.pnrexpress.TrainsSearchResult"
+            android:name=".TrainsSearchResult"
             android:label="@string/title_activity_trains_search_result"
             android:screenOrientation="portrait" >
+        </activity>
+        <activity
+            android:name=".LiveRunningStatusActivity"
+            android:label="@string/title_activity_live_running_status" >
         </activity>
     </application>
 

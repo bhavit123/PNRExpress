@@ -123,17 +123,22 @@ public class PnrFragment extends BaseFragment {
 
 		Button getPnrStatus = (Button) rootView.findViewById(R.id.button_getpnrstatus);
 		getPnrStatus.setOnClickListener(new View.OnClickListener() {
-
+			
 			@Override
-			public void onClick(View v) { // this code will be executed when
-				// user clicks the "get Pnr status"
-				// button
+			public void onClick(View v) { 
 
 				if (!pnr.getText().toString().equals("")) {
 
-					String pnrNumber = pnr.getText().toString(); // getting the PNR number written by user
+					if(pnr.getText().toString().length() == 10){
 
-					new BaseActivity().getPnrStatus(pnrNumber, getActivity());
+						String pnrNumber = pnr.getText().toString(); // getting the PNR number written by user
+
+						new BaseActivity().getPnrStatus(pnrNumber, getActivity());
+
+					} else {
+						BaseActivity.showAlertDialog(getActivity(), "ALERT",
+								"Enter correct pnr number.");
+					}
 
 				} else {
 					BaseActivity.showAlertDialog(getActivity(), "ALERT",

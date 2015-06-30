@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:gravity="center_vertical">
+    
+    <RelativeLayout 
+        android:id="@+id/ll_images"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_alignParentLeft="true">
+    
+    <ImageView
+        android:id="@+id/rail_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_centerInParent="true"
+        android:src="@drawable/rails_brown"/>
+    
+    <ImageView
+        android:id="@+id/train_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:src="@drawable/train_new"
+        
+        android:visibility="invisible"/>
+    
+    </RelativeLayout>
+    
+       <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_toRightOf="@+id/ll_images"
+        android:orientation="vertical" >
+
+        <TextView
+            android:id="@+id/station"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="BIKANER JUNCTION(BKN)"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp" />
+        
+        <TextView
+            android:id="@+id/tv_platformno"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="PLATFORM NO.: 1"
+            android:textColor="#FFFFFF"
+            android:textSize="13sp" />
+
+        <TextView
+            android:id="@+id/tv_scheduled_arrival_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="SCHEDULED ARRIVAL: Starts"
+            android:textColor="#FFFFFF"
+            android:textSize="13sp" />
+
+        <TextView
+            android:id="@+id/tv_scheduled_departure_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="SCHEDULED DEPARTURE: 10:50AM"
+            android:textColor="#FFFFFF"
+            android:textSize="13sp" />
+
+        <TextView
+            android:id="@+id/tv_actual_arrival_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="ACTUAL ARRIVAL: Starts"
+            android:textColor="#FFFFFF"
+            android:textSize="13sp" />
+
+        <TextView
+            android:id="@+id/tv_actual_departure_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="ACTUAL DEPARTURE: 10:50AM" 
+            android:textColor="#FFFFFF"
+            android:textSize="13sp"/>
+
+        <TextView
+            android:id="@+id/tv_trainstatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="TRAIN STATUS: Departed"
+            android:textColor="#FFFFFF"
+            android:textSize="13sp"/>
+    </LinearLayout>
+   
+
+   <!--  <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:layout_toRightOf="@+id/train_icon"
+        android:orientation="vertical" >
+
+        <TextView
+            android:id="@+id/pnr_num"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="PNR: 8221556165"
+            android:textColor="#FFFFFF"
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/from_st"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="FROM: MUMBAI CENTRAL"
+            android:textColor="#FFFFFF"
+            android:textSize="13sp" />
+
+        <TextView
+            android:id="@+id/to_st"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="TO: JAIPUR"
+            android:textColor="#FFFFFF"
+            android:textSize="13sp" />
+
+        <TextView
+            android:id="@+id/date_of_journey"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Date: 2014-04-17"
+            android:textColor="#FFFFFF"
+            android:textSize="15sp" />
+    </LinearLayout> -->
+
+</RelativeLayout>
