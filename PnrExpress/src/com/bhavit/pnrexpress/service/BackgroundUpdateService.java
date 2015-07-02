@@ -34,6 +34,8 @@ import com.bhavit.pnrexpress.dao.SqlHelper;
 import com.bhavit.pnrexpress.fragment.PnrFragment;
 import com.bhavit.pnrexpress.model.LastStatus;
 import com.bhavit.pnrexpress.model.PnrDetail;
+import com.bhavit.pnrexpress.util.AppHelper;
+import com.bhavit.pnrexpress.util.RestClient;
 import com.jaunt.Elements;
 import com.jaunt.NotFound;
 import com.jaunt.ResponseException;
@@ -106,7 +108,7 @@ public class BackgroundUpdateService extends Service {
 	public class MyAsyncTask extends AsyncTask<String, Void, Void> {
 
 		String resultPnr;
-		String result[][];
+		String result[][] = null;
 		String resultJSON;
 
 		// Call after onPreExecute method
@@ -118,17 +120,14 @@ public class BackgroundUpdateService extends Service {
 			result = new String[pnrArray.length][2];
 
 			for(int i = 0;i<pnrArray.length; i++){
+				
+				RestClient client = new RestClient(url);
+				client.addHeader("Content-Type", "application/x-www-form-urlencoded");
+				client.addStringBody("pnr="+"pnr="+pnrArray[i]);
 
-				HttpClient httpClient = new DefaultHttpClient();
-				HttpPost httpPost = new HttpPost(url);
-				httpPost.setHeader("Content-Type", "application/x-www-form-urlencoded");
-
-				ResponseHandler<String> responseHandler = new BasicResponseHandler();
 				try {
 
-					StringEntity entity = new StringEntity("pnr="+pnrArray[i], HTTP.UTF_8);
-					httpPost.setEntity(entity);
-					resultPnr = httpClient.execute(httpPost, responseHandler);
+					resultPnr = client.executePost();
 
 					UserAgent userAgentPnr = new UserAgent();
 					userAgentPnr.openContent(resultPnr);
@@ -156,17 +155,13 @@ public class BackgroundUpdateService extends Service {
 					result[i][0] = pnrArray[i];
 					result[i][1] = currentStatus;
 
-				} catch (ClientProtocolException e) {
-
-					e.printStackTrace();
-				} catch (IOException e) {
-
-					e.printStackTrace();
-				} catch (ResponseException e) {
+				}catch (ResponseException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} catch (NotFound e) {
 					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch(Exception e){
 					e.printStackTrace();
 				}
 
@@ -192,7 +187,7 @@ public class BackgroundUpdateService extends Service {
 
 			try{
 
-				if(result!=null){
+				if(!AppHelper.isArrayEmpty(result)){
 					for(int i =0; i<result.length; i++){
 						String before = sqlhelper.getLastStatus(result[i][0]);
 						if(!result[i][1].equals(before)){
@@ -203,7 +198,7 @@ public class BackgroundUpdateService extends Service {
 					}
 				}
 
-			} catch(Exception e){}
+			} catch(Exception e){e.printStackTrace();}
 			mBuilder.setStyle(new NotificationCompat.BigTextStyle().bigText(body));
 
 			if(flag!=0){

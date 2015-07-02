@@ -1,8 +1,14 @@
 package com.bhavit.pnrexpress;
 
 import java.util.ArrayList;
+import java.util.Iterator;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.content.res.TypedArray;
 import android.os.Bundle;
@@ -11,10 +17,12 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.text.InputType;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import com.bhavit.pnrexpress.fragment.CommunityFragment;
@@ -24,6 +32,7 @@ import com.bhavit.pnrexpress.fragment.SeatAvailabilityFragment;
 import com.bhavit.pnrexpress.fragment.SeatlayoutFragment;
 import com.bhavit.pnrexpress.fragment.WhatsHotFragment;
 import com.bhavit.pnrexpress.model.NavDrawerItem;
+import com.bhavit.pnrexpress.util.AppHelper;
 import com.bhavit.pnrexpress.util.NavDrawerListAdapter;
 
 public class MainActivity extends FragmentActivity {
@@ -44,12 +53,32 @@ public class MainActivity extends FragmentActivity {
 	private ArrayList<NavDrawerItem> navDrawerItems;
 	private NavDrawerListAdapter adapter;
 	int selectedPosition = 0;
-
+	ArrayList<String> list;
+	
 	@SuppressLint("NewApi")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+		
+		list = new ArrayList<String>();
+
+		JSONArray trains;
+		try {
+			trains = new JSONArray(AppHelper.loadJSONFromAsset(this, "trains.json"));
+
+			for(int i = 0; i<trains.length(); i++){
+				JSONObject train = trains.getJSONObject(i);
+				String trainName = train.getString("trainName");
+				String trainCode = train.getString("trainNo");
+				list.add(trainName + "- " + trainCode);
+
+			}
+
+		} catch (JSONException e) {
+
+			e.printStackTrace();
+		}
 
 		mTitle = mDrawerTitle = getTitle();
 
@@ -72,9 +101,12 @@ public class MainActivity extends FragmentActivity {
 		// Seat Availability
 		navDrawerItems.add(new NavDrawerItem(navMenuTitles[1], navMenuIcons
 				.getResourceId(1, -1)));
-		// Seat Layout
+		// Train Route
 		navDrawerItems.add(new NavDrawerItem(navMenuTitles[2], navMenuIcons
 				.getResourceId(2, -1)));
+		//Seat layout
+		navDrawerItems.add(new NavDrawerItem(navMenuTitles[3], navMenuIcons
+				.getResourceId(3, -1)));
 		// Communities, Will add a counter here
 		/*
 		 * navDrawerItems.add(new NavDrawerItem(navMenuTitles[3],
@@ -147,10 +179,35 @@ public class MainActivity extends FragmentActivity {
 			fragment = new SeatAvailabilityFragment();
 			break;
 		case 2:
-			fragment = new SeatlayoutFragment();
+			ArrayAdapter<String> adapter = new ArrayAdapter<String>(MainActivity.this,
+					android.R.layout.simple_dropdown_item_1line, list);
+			AppHelper.openAutoCompleteInputDialog(MainActivity.this, "Select Train", "Enter Train name or number",adapter, new OnClickListener() {
+				
+				@Override
+				public void onClick(View v) {
+					
+					if (AppHelper.inputDialogAutoCompletetv.getText().toString().contains("-")){
+						if (!AppHelper.inputDialogAutoCompletetv.getText().toString().equals("")) {
+							
+							Intent i = new Intent(MainActivity.this, LocationActivity.class);
+							i.putExtra("tnum", AppHelper.inputDialogAutoCompletetv.getText().toString()
+									.split("-")[1].trim());
+							startActivity(i);
+							
+						} else {
+							
+							AppHelper.toast(MainActivity.this, "Select a train first.");
+						}
+					} else {
+						AppHelper.toast(MainActivity.this, "Select train from options.");
+					}
+		
+				}
+			});
+			mDrawerLayout.closeDrawer(mDrawerList);
 			break;
 		case 3:
-			fragment = new CommunityFragment();
+			fragment = new SeatlayoutFragment();
 			break;
 		case 4:
 			fragment = new PagesFragment();

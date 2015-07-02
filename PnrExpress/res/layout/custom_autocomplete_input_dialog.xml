@@ -40,7 +40,8 @@
                 android:inputType="textNoSuggestions"
                 android:hint="Enter station name or code"
                 android:paddingLeft="10dp"
-                android:paddingRight="10dp" >
+                android:paddingRight="10dp"
+                android:selectAllOnFocus="true" >
 
                 <requestFocus />
             </AutoCompleteTextView>

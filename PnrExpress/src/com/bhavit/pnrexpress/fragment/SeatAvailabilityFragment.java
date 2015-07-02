@@ -58,6 +58,7 @@ import com.bhavit.pnrexpress.TrainsSearchResult;
 import com.bhavit.pnrexpress.adapters.CustomListAdapterSearchHistory;
 import com.bhavit.pnrexpress.model.SearchHistory;
 import com.bhavit.pnrexpress.util.AppConstants;
+import com.bhavit.pnrexpress.util.AppHelper;
 import com.bhavit.pnrexpress.util.RestClient;
 
 public class SeatAvailabilityFragment extends BaseFragment implements
@@ -177,7 +178,7 @@ OnClickListener {
 
 		JSONObject stations;
 		try {
-			stations = new JSONObject(loadJSONFromAsset());
+			stations = new JSONObject(AppHelper.loadJSONFromAsset(getActivity(), "train_stations.json"));
 			Iterator<String> names = stations.keys();
 
 			while (names.hasNext()) {
@@ -373,12 +374,12 @@ OnClickListener {
 
 				} else {
 
-					BaseActivity.showAlertDialog(getActivity(), "Sorry",
-							"No trains available between these stations.");
+					BaseActivity.showAlertDialog(getActivity(), "Sorry!",
+							"Unable to get Availability.");
 				}
 
 			} else {
-				BaseActivity.showAlertDialog(getActivity(), "Error",
+				BaseActivity.showAlertDialog(getActivity(), "Error!",
 						"Could not connect to server. Please try again");
 			}
 			super.onPostExecute(res);
@@ -386,30 +387,7 @@ OnClickListener {
 
 	}
 
-	public String loadJSONFromAsset() {
-		String json = null;
-		try {
-
-			InputStream is = getActivity().getAssets().open(
-					"train_stations.json");
-
-			int size = is.available();
-
-			byte[] buffer = new byte[size];
-
-			is.read(buffer);
-
-			is.close();
-
-			json = new String(buffer, "UTF-8");
-
-		} catch (IOException ex) {
-			ex.printStackTrace();
-			return null;
-		}
-		return json;
-
-	}
+	
 
 	public class DatePickerFragment extends DialogFragment implements
 	DatePickerDialog.OnDateSetListener {
@@ -436,64 +414,44 @@ OnClickListener {
 
 	@Override
 	public void onClick(final View v) {
-		final Dialog dialog;
-		dialog = new Dialog(getActivity());
-		dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-		dialog.setContentView(R.layout.custom_dialog_station_search);
-		dialog.setCanceledOnTouchOutside(false);
+				
+		ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),
+				android.R.layout.simple_dropdown_item_1line, list);
 
-		TextView heading = (TextView) dialog.findViewById(R.id.heading);
-		heading.setTypeface(BaseActivity.tf);
-
-		final AutoCompleteTextView station = (AutoCompleteTextView) dialog
-				.findViewById(R.id.stationAutoCompletetv);
-		station.setAdapter(new ArrayAdapter<String>(getActivity(),
-				android.R.layout.simple_dropdown_item_1line, list));
-		station.setThreshold(1);
-		station.setDropDownAnchor(R.id.listView1);
-
-		Button tick = (Button) dialog.findViewById(R.id.btn_tick);
-		tick.setOnClickListener(new OnClickListener() {
+		AppHelper.openAutoCompleteInputDialog(getActivity(), "Select Station", "Enter station name or code", adapter, new OnClickListener() {
 
 			@Override
 			public void onClick(View view) {
 
-				if (station.getText().toString().contains("-"))
-					if (!station.getText().toString().equals("")) {
+				if (AppHelper.inputDialogAutoCompletetv.getText().toString().contains("-")){
+					if (!AppHelper.inputDialogAutoCompletetv.getText().toString().equals("")) {
 						if (v.getId() == R.id.autoCompleteTextView1) {
-							stationName1.setText(station.getText().toString()
+							stationName1.setText(AppHelper.inputDialogAutoCompletetv.getText().toString()
 									.split("-")[0]);
-							stationCode1.setText(station.getText().toString()
+							stationCode1.setText(AppHelper.inputDialogAutoCompletetv.getText().toString()
 									.split("-")[1].trim());
 							stationCode1.setVisibility(View.VISIBLE);
 
 						} else {
-							stationName2.setText(station.getText().toString()
+							stationName2.setText(AppHelper.inputDialogAutoCompletetv.getText().toString()
 									.split("-")[0]);
-							stationCode2.setText(station.getText().toString()
+							stationCode2.setText(AppHelper.inputDialogAutoCompletetv.getText().toString()
 									.split("-")[1].trim());
 							stationCode2.setVisibility(View.VISIBLE);
 						}
 					}
-
-				station.clearFocus();
+				}
+				AppHelper.inputDialogAutoCompletetv.clearFocus();
 
 				InputMethodManager imm = (InputMethodManager) getActivity()
 						.getSystemService(Context.INPUT_METHOD_SERVICE);
-				imm.hideSoftInputFromWindow(station.getWindowToken(),
+				imm.hideSoftInputFromWindow(AppHelper.inputDialogAutoCompletetv.getWindowToken(),
 						InputMethodManager.HIDE_IMPLICIT_ONLY);
 
-				dialog.dismiss();
+				AppHelper.autoCompleteInputDialog.dismiss();
 
 			}
 		});
-
-		dialog.getWindow().setBackgroundDrawable(
-				new ColorDrawable(android.graphics.Color.TRANSPARENT));
-
-		if (!getActivity().isFinishing()) {
-			dialog.show();
-		}
 	}
 
 }

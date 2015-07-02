@@ -3,15 +3,22 @@ package com.bhavit.pnrexpress;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.annotation.SuppressLint;
+import android.app.ProgressDialog;
 import android.location.Address;
 import android.location.Criteria;
 import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.telephony.gsm.GsmCellLocation;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -21,6 +28,7 @@ import android.widget.Toast;
 
 import com.bhavit.pnrexpress.adapters.CustomListViewAdapterStationsList;
 import com.bhavit.pnrexpress.model.Station;
+import com.bhavit.pnrexpress.util.RestClient;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -28,6 +36,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.gson.Gson;
 
 public class LocationActivity extends FragmentActivity implements LocationListener {
 	// private MyLocationOverlay myLocationOverlay;
@@ -38,6 +47,10 @@ public class LocationActivity extends FragmentActivity implements LocationListen
 	String provider;
 	Marker meMarker;
 	Button whereAmI;
+	ArrayList<Station> l;
+	HashMap<String, LatLng> locMap;
+	HashMap<String, Marker> markerMap;
+	TextView heading;
 
 	@SuppressLint("NewApi")
 	@Override
@@ -67,7 +80,7 @@ public class LocationActivity extends FragmentActivity implements LocationListen
 						float lng = (float) (location.getLongitude());
 
 						LatLng ll=new LatLng(lat, lng);
-						
+
 						if(meMarker != null){
 							meMarker.remove();
 						}
@@ -87,32 +100,108 @@ public class LocationActivity extends FragmentActivity implements LocationListen
 					}
 
 				} else {
-				Toast.makeText(getApplicationContext(), "Location Provider not available",
+					Toast.makeText(getApplicationContext(), "Location Provider not available",
 							Toast.LENGTH_LONG).show();
-					
+
 				}
 			}
 		});
 
-		TextView heading = (TextView) findViewById(R.id.textView_heading);
+		heading = (TextView) findViewById(R.id.textView_heading);
 		heading.setTypeface(BaseActivity.tf);
 
-		final HashMap<String, LatLng> locMap = new HashMap<String, LatLng>();
-		final HashMap<String, Marker> markerMap = new HashMap<String, Marker>();
+		locMap = new HashMap<String, LatLng>();
+		markerMap = new HashMap<String, Marker>();
+		
 		map = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map))
 				.getMap();
 
-		final String pnrNo = this.getIntent().getStringExtra("pnr");
-		final ArrayList<Station> l = BaseActivity.sqlHelper.getTrainRoute(pnrNo);
-		
-		new Thread(new Runnable() {
+		String pnrNo = this.getIntent().getStringExtra("pnr");
+		if(pnrNo != null){
+			l = BaseActivity.sqlHelper.getTrainRoute(pnrNo);
+			buildUi(l);
+		} else {
+			String tnum = this.getIntent().getStringExtra("tnum");
+			LocationAsyncTask task = new LocationAsyncTask();
+			task.execute("http://api.pnrexpress.in/TrainRouteService",tnum);
+		}
+
+	}
+	
+	public class LocationAsyncTask extends AsyncTask<String, Void, String>{
+
+		ProgressDialog p;
+		@Override
+		protected void onPreExecute() {
+			p = new ProgressDialog(LocationActivity.this);
+			p.show();
+			p.setContentView(R.layout.custom_progressdialog);
+			p.setCancelable(false);
+			p.setCanceledOnTouchOutside(false);
+
+			super.onPreExecute();
+		}
+
+		@Override
+		protected String doInBackground(String... params) {
 			
+			RestClient client = new RestClient(params[0]+"?trainno="+params[1]);
+
+			return client.executeGet();
+		}
+
+		@Override
+		protected void onPostExecute(String result) {
+			whereAmI.setVisibility(View.GONE);
+			p.dismiss();
+			ArrayList<Station> array = new ArrayList<Station>();
+			
+			try {
+				JSONObject root = new JSONObject(result);
+				if(root.isNull("error")){
+					
+				JSONObject info = root.getJSONObject("train_information");
+				heading.setText(info.getString("trainName"));
+				heading.setTextSize(20);
+				heading.setTypeface(BaseActivity.tf);	
+				
+				JSONArray jsonArr = root.getJSONArray("train_route");
+				
+				for(int i = 0; i<jsonArr.length(); i++){
+					
+					JSONObject obj = jsonArr.getJSONObject(i);
+					Gson g = new Gson();
+					Station s = g.fromJson(obj.toString(), Station.class);
+					array.add(s);
+					
+				}
+				buildUi(array);
+				} else {
+					Toast.makeText(getApplicationContext(), root.getString("error"), Toast.LENGTH_LONG).show();
+					finish();
+				}
+				
+			} catch (JSONException e) {
+				e.printStackTrace();
+				
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+			super.onPostExecute(result);
+		}
+		
+	}
+	
+	void buildUi(final ArrayList<Station> l){
+		new Thread(new Runnable() {
+
 			@Override
 			public void run() {
-				
+
 				double lat = 0;
 				double lon = 0;
-				
+
 				for (final Station got : l) {
 
 					if(got.getLatitude().equals("null") || got.getLongitude().equals("null")){
@@ -141,7 +230,7 @@ public class LocationActivity extends FragmentActivity implements LocationListen
 					locMap.put(got.getStationNo(), loc); // for listview use
 
 					runOnUiThread(new Runnable() {
-						
+
 						@Override
 						public void run() {
 
@@ -154,17 +243,15 @@ public class LocationActivity extends FragmentActivity implements LocationListen
 								map.animateCamera(CameraUpdateFactory.newLatLngZoom(loc, 15), 2000, null);
 								m.showInfoWindow();
 							}
-							
+
 						}
 					});
-					
+
 
 				}
-				
+
 			}
 		}).start();
-
-		
 
 		ListView stationsList = (ListView)findViewById(R.id.stations_list);
 		CustomListViewAdapterStationsList adapter = new CustomListViewAdapterStationsList(getApplicationContext(), R.layout.custom_list_item_stations_list, l);
@@ -177,20 +264,24 @@ public class LocationActivity extends FragmentActivity implements LocationListen
 
 				LatLng clickedLoc = locMap.get(String.valueOf(arg2+1));
 
-				map.animateCamera(CameraUpdateFactory.newLatLngZoom(clickedLoc, 15), 2000, new GoogleMap.CancelableCallback() {
+				try{
+					map.animateCamera(CameraUpdateFactory.newLatLngZoom(clickedLoc, 15), 2000, new GoogleMap.CancelableCallback() {
 
-					@Override
-					public void onFinish() {
-						markerMap.get(String.valueOf(arg2+1)).showInfoWindow();
+						@Override
+						public void onFinish() {
+							markerMap.get(String.valueOf(arg2+1)).showInfoWindow();
 
-					}
+						}
 
-					@Override
-					public void onCancel() {
-						// TODO Auto-generated method stub
+						@Override
+						public void onCancel() {
+							// TODO Auto-generated method stub
 
-					}
-				});
+						}
+					});
+				} catch(Exception e){
+					e.printStackTrace();
+				}
 			}
 		});
 
