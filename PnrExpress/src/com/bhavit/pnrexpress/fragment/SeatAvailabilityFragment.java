@@ -445,8 +445,7 @@ OnClickListener {
 
 				InputMethodManager imm = (InputMethodManager) getActivity()
 						.getSystemService(Context.INPUT_METHOD_SERVICE);
-				imm.hideSoftInputFromWindow(AppHelper.inputDialogAutoCompletetv.getWindowToken(),
-						InputMethodManager.HIDE_IMPLICIT_ONLY);
+				imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);// to toggle softkeyboard open/close
 
 				AppHelper.autoCompleteInputDialog.dismiss();
 

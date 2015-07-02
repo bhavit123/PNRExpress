@@ -26,7 +26,8 @@
                 android:layout_marginTop="10dp"
                 android:text="RANAKPUR EXPRESS"
                 android:textColor="#FFFFFF"
-                android:textSize="25sp" />
+                android:textSize="25sp"
+                android:onClick="getRoute" />
 
             <TextView
                 android:id="@+id/train_no"

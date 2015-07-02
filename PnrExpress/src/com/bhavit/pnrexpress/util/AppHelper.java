@@ -90,6 +90,11 @@ public class AppHelper {
 		inputDialogAutoCompletetv.setAdapter(adapter);
 		inputDialogAutoCompletetv.setThreshold(1);
 		inputDialogAutoCompletetv.setDropDownAnchor(R.id.listView1);
+		inputDialogAutoCompletetv.requestFocus();
+		
+		InputMethodManager imm = (InputMethodManager) context
+				.getSystemService(Context.INPUT_METHOD_SERVICE);
+		imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);  // to toggle softkeyboard open/close
 		
 		Button tick = (Button) autoCompleteInputDialog.findViewById(R.id.btn_tick);
 		tick.setOnClickListener(listener);

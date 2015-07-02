@@ -37,6 +37,7 @@ import com.bhavit.pnrexpress.adapters.CustomListViewAdapterTrainsList;
 import com.bhavit.pnrexpress.model.Availability;
 import com.bhavit.pnrexpress.model.Train;
 import com.bhavit.pnrexpress.util.AppConstants;
+import com.bhavit.pnrexpress.util.AppHelper;
 import com.bhavit.pnrexpress.util.RestClient;
 import com.jaunt.Element;
 import com.jaunt.Elements;
@@ -54,6 +55,7 @@ public class TrainsSearchResult extends BaseActivity {
 	String classs, quota;
 	String from_to;
 	TextView date, heading;
+	String trainNumber;
 
 	@SuppressLint("SetJavaScriptEnabled")
 	@Override
@@ -304,6 +306,7 @@ public class TrainsSearchResult extends BaseActivity {
 						trainNo.setText("(" + row.getElement(0).innerHTML()
 								+ ")");
 						trainNo.setTypeface(tf);
+						trainNumber =  row.getElement(0).innerHTML();
 
 						from_to = (TextView) dialog.findViewById(R.id.from_to);
 						from_to.setText(row.getElement(3).innerHTML().trim()
@@ -569,5 +572,14 @@ public class TrainsSearchResult extends BaseActivity {
 		}
 
 	}
+	
+	public void getRoute(View v){
+		
+		Intent i = new Intent(TrainsSearchResult.this, LocationActivity.class);
+		i.putExtra("tnum", trainNumber);
+		startActivity(i);
+		
+	}
+	
 
 }

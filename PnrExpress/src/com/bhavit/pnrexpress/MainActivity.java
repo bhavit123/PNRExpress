@@ -8,6 +8,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.content.res.TypedArray;
@@ -21,6 +22,7 @@ import android.text.InputType;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -202,6 +204,8 @@ public class MainActivity extends FragmentActivity {
 						AppHelper.toast(MainActivity.this, "Select train from options.");
 					}
 		
+					InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+					imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);// to toggle softkeyboard open/close
 				}
 			});
 			mDrawerLayout.closeDrawer(mDrawerList);
