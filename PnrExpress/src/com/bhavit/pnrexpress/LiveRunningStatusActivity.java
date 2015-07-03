@@ -91,10 +91,22 @@ public class LiveRunningStatusActivity extends Activity {
 							object.setBackground(R.color.green);
 
 						if(flag){
-							if(obj.getString("trainStatus").contains("Waiting") || obj.getString("trainStatus").equals("")){
+							
+							if(obj.getString("trainStatus").contains("Waiting"))
+							if(obj.getString("trainStatus").contains("Waiting")){
+								
+								if(i<(arr.length()-1) && arr.getJSONObject(i+1).getString("trainStatus").contains("Waiting")){
+									
+									
+								}
+								
 								object.setTrainIcon(View.VISIBLE);
 								selectedPosition = i;
-							flag=false;
+								flag=false;
+							} else if(obj.getString("trainStatus").equals("")){
+								object.setTrainIcon(View.VISIBLE);
+								selectedPosition = i;
+								flag=false;
 							}
 						}
 
@@ -110,7 +122,7 @@ public class LiveRunningStatusActivity extends Activity {
 			CustomListAdapterLiveRunningStatus adapter = new CustomListAdapterLiveRunningStatus(LiveRunningStatusActivity.this, R.layout.custom_list_item_live_running_status, array);
 
 			list.setAdapter(adapter);
-			
+
 			list.smoothScrollToPosition(selectedPosition);
 
 			super.onPostExecute(result);

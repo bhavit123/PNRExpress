@@ -236,17 +236,15 @@ OnClickListener {
 					if (date != null) {
 						if (!stationCode1.getText().toString()
 								.equals(stationCode2.getText().toString())) {
-							String url2 = "http://pnrbuddy.com/hauth/seatavailtrains";
+							String url2 = "http://api.pnrexpress.in/TrainsBetweenStationService";
 
 							String dateString = (date.getDayOfMonth() < 10 ? "0"
 									+ date.getDayOfMonth()
 									: date.getDayOfMonth())
-									+ "/"
+									+ "-"
 									+ (date.getMonth() + 1 < 10 ? "0"
 											+ (date.getMonth() + 1) : date
-											.getMonth() + 1)
-											+ "/"
-											+ date.getYear();
+											.getMonth() + 1);
 
 							ConnectivityManager cm = (ConnectivityManager) getActivity()
 									.getSystemService(
@@ -259,13 +257,10 @@ OnClickListener {
 									&& networkInfo.isConnected()) {
 
 								MyAsyncTask asynctask = new MyAsyncTask();
-								asynctask.execute(url2, stationCode1.getText()
-										.toString().trim(), stationCode2
-										.getText().toString().trim(),
-										dateString, AppConstants
-										.getQuotaValue(quota
-												.getSelectedItem()
-												.toString()));
+								asynctask.execute(url2+"?from="+stationCode1.getText()
+										.toString().trim()+"&to="+stationCode2
+										.getText().toString().trim()+"&date="+
+										dateString);
 							} else {
 								Toast.makeText(getActivity(),
 										"No internet connection !!",
@@ -322,10 +317,8 @@ OnClickListener {
 				RestClient client = new RestClient(params[0]);
 				client.addHeader("Content-Type",
 						"application/x-www-form-urlencoded");
-				client.addStringBody("from=" + params[1] + "&to=" + params[2]
-						+ "&date=" + params[3] + "&class=ZZ" + "&quota="
-						+ params[4]);
-				result = client.executePost();
+
+				result = client.executeGet();
 
 			} catch (Exception e) {
 

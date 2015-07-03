@@ -16,6 +16,7 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.protocol.HTTP;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -53,6 +54,7 @@ import com.bhavit.pnrexpress.model.Passenger;
 import com.bhavit.pnrexpress.model.PnrDetail;
 import com.bhavit.pnrexpress.model.Station;
 import com.bhavit.pnrexpress.util.RestClient;
+import com.google.gson.JsonArray;
 import com.jaunt.Element;
 import com.jaunt.Elements;
 import com.jaunt.UserAgent;
@@ -94,7 +96,7 @@ public class BaseActivity extends Activity {
 		message.setTypeface(tf);
 		ok.setTypeface(tf);
 
-		
+
 		int px = (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 30,  context.getResources().getDisplayMetrics());
 		LinearLayout.LayoutParams lParams = new LinearLayout.LayoutParams(width-px, LinearLayout.LayoutParams.WRAP_CONTENT);
 		lParams.gravity = Gravity.CENTER_HORIZONTAL;
@@ -160,7 +162,7 @@ public class BaseActivity extends Activity {
 		dialog.show();
 	}
 
-	
+
 	public static void showPnrDeleteDialog(final Context context, String titleText, String messageText, final View listViewItem, int listItem, final ListView l){
 
 		metrics = context.getResources().getDisplayMetrics();
@@ -233,7 +235,7 @@ public class BaseActivity extends Activity {
 
 		this.context = context;
 		//String pnrUrl = "http://www.pnrstatus.in/pnr/query.php";
-		String pnrUrl = "http://pnrbuddy.com/hauth/pnrstatus";
+		String pnrUrl = "http://api.pnrexpress.in/PnrStatusService";
 
 		ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
 		NetworkInfo networkInfo = cm.getActiveNetworkInfo();
@@ -254,7 +256,7 @@ public class BaseActivity extends Activity {
 	}
 
 	public class MyAsyncTask extends AsyncTask<String, Void, Void> {
-		String resultPnr;
+		String resultPnr = null;
 		String resultRoute;
 		ProgressBar bar;
 		Dialog dialog;
@@ -279,60 +281,42 @@ public class BaseActivity extends Activity {
 
 			pnr = params[1];
 
-			RestClient client = new RestClient(params[0]);
+			RestClient client = new RestClient(params[0]+"?pnr="+pnr);
 			client.addHeader("Content-Type", "application/x-www-form-urlencoded");
-			client.addStringBody("pnr="+params[1]);
-		
+
 			try {
-				resultPnr  = client.executePost();
-				/*JSONObject obj = new JSONObject(resultPnr);
-				JSONArray journey = obj.getJSONArray("Journey");
-				String trainNo = ((JSONArray)journey.get(0)).get(1).toString();*/
+				resultPnr  = client.executeGet();
 
-				UserAgent userAgentPnr = new UserAgent();
-				userAgentPnr.openContent(resultPnr);
-
-				Element anchor = userAgentPnr.doc.findFirst("<a>");
-				String trainNo = anchor.innerHTML();
-
+				JSONObject resultObj = new JSONObject(resultPnr);
+				String trainNo = resultObj.getString("train_num");
 
 				if(!sqlHelper.doesPnrExist(pnr)){
-					
+
 					//Getting the route train information 
-					RestClient client2 = new RestClient("http://pnrbuddy.com/hauth/trainroute");
-					client2.addHeader("Content-Type", "application/x-www-form-urlencoded");
-					client2.addStringBody("trainno="+trainNo);
+					RestClient clientRoute = new RestClient("http://api.pnrexpress.in/TrainRouteService?trainno="+trainNo);
 
-					resultRoute = client2.executePost();
+					resultRoute = clientRoute.executeGet();
 
+					JSONObject resultJson = new JSONObject(resultRoute);
+					
+					JSONArray stations = resultJson.getJSONArray("train_route");
 
-					UserAgent userAgent = new UserAgent();
-					userAgent.openContent(resultRoute);
+					for(int i = 0 ; i<stations.length() ; i++){
 
-					Table table = userAgent.doc.getTable("<table class=default-table>");  //find table element
-
-					Element eTable = userAgent.doc.findFirst("<table class=default-table>");  //find table element
-					Elements trs = eTable.findEach("<tr>");
-
-
-					for(int i = 1 ; i<trs.size() ; i++){
-
-						Elements elements = table.getRow(i);
-						String stationNo = elements.getElement(0).innerHTML();
-						String arrivalTime = elements.getElement(2).innerHTML().trim();
-						String departureTime = elements.getElement(3).innerHTML().trim();
-						String stopTime = elements.getElement(4).innerHTML().trim();
-						String day = "";
-						String distance = elements.getElement(5).innerHTML().trim();
-
-						String station= elements.getElement(1).innerHTML();
-						String stationName = station.split("\\(")[0].trim();
-						String stationCode = station.split("\\(")[1].split("\\)")[0].trim();
+						JSONObject station = stations.getJSONObject(i);
+						
+						String stationNo = station.getString("stationNo");
+						String arrivalTime =station.getString("arrivalTime");
+						String departureTime = station.getString("departureTime");
+						String stopTime = station.getString("stopTime");
+						String day = station.getString("day");
+						String distance = station.getString("distance");
+						String stationName = station.getString("stationName");
+						String stationCode =station.getString("stationCode");
 
 						//JSONObject location = station.getJSONObject("location");
 						String latitude = "null";
 						String longitude = "null";
-
 
 						sqlHelper.insertInTrainRoute(new Station(pnr, stationName, stationCode, stationNo, arrivalTime, departureTime, stopTime, day, distance, latitude, longitude));
 
@@ -357,253 +341,235 @@ public class BaseActivity extends Activity {
 			// Toast.makeText(getApplicationContext(), this.result+"",
 			// Toast.LENGTH_LONG).show();
 
-			if(!resultPnr.contains("Unable to get availability due to network error") && !resultPnr.contains("Network Error. Please try again after some time")){
+			if(resultPnr != null){
 
 				dialog = new Dialog(context);
 				dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
 				dialog.setContentView(R.layout.custom_dialog_pnr_result);
 				dialog.setCanceledOnTouchOutside(false);
-				String err = null;
 				try {
-					JSONObject obj = new JSONObject(resultPnr);
-					if(!obj.isNull("Error")){
 
-						err = obj.getString("Error");
-					}
+					JSONObject resultObj = new JSONObject(resultPnr);
+					if (!resultObj.getBoolean("error")) {
 
-				} catch (JSONException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+						try {
 
-				if (err == null) {
+							final String trainNo = resultObj.getString("train_num");
+							final String trainName = resultObj.getString("train_name");
+							final String doj =resultObj.getString("doj");
 
-					try {
 
-						UserAgent userAgentPnr = new UserAgent();
-						userAgentPnr.openContent(resultPnr);
-						Table table = userAgentPnr.doc.getTable(0);  //find table element
+							final String fromCode =  resultObj.getJSONObject("from_station").getString("code");
+							final String fromName = resultObj.getJSONObject("from_station").getString("name");
+							final String toCode = resultObj.getJSONObject("to_station").getString("code");
+							final String toName = resultObj.getJSONObject("to_station").getString("name");
+							final String reservationUptoCode = resultObj.getJSONObject("reservation_upto").getString("code");
+							final String reservationUptoName = resultObj.getJSONObject("reservation_upto").getString("name");
 
-						Elements elements = table.getRow(1);
 
-						final String trainNo = elements.getElement(0).findFirst("<a>").innerHTML().trim();
-						final String trainName = elements.getElement(1).findFirst("<a>").innerHTML().trim();
-						final String doj = elements.getElement(2).innerHTML().split("\\:")[1].trim();
+							final String boardingPointCode = resultObj.getJSONObject("boarding_point").getString("code");
+							final String boardingPointName = resultObj.getJSONObject("boarding_point").getString("name");
+							final String reservationClass = resultObj.getString("class");
+							int noOfPassengers =  resultObj.getInt("total_passengers");
 
-						elements = table.getRow(2);
+							final String chart = resultObj.getString("chart_prepared").equals("N")?"Chart not prepared.":"Chart prepared.";				
 
-						final String fromCode =  elements.getElement(0).findFirst("<a>").innerHTML().split("\\(")[0].trim();
-						final String fromName =  elements.getElement(0).findFirst("<a>").innerHTML().split("\\(")[1].split("\\)")[0];
-						final String toCode = elements.getElement(1).findFirst("<a>").innerHTML().split("\\(")[0].trim();
-						final String toName = elements.getElement(1).findFirst("<a>").innerHTML().split("\\(")[1].split("\\)")[0];
-						final String reservationUptoCode = elements.getElement(2).findFirst("<a>").innerHTML().split("\\(")[0].trim();
-						final String reservationUptoName = elements.getElement(2).findFirst("<a>").innerHTML().split("\\(")[1].split("\\)")[0];
+							String serial;
+							String bookingStatus;
+							String currentStatus;
+							
+							JSONArray passengers = resultObj.getJSONArray("passengers");
+							
+							final List<Passenger> listPassengers = new ArrayList<Passenger>();
+							for (int i = 0; i < passengers.length(); i++) {
 
-						elements = table.getRow(3);
+								JSONObject passenger = passengers.getJSONObject(i);
 
-						final String boardingPointCode = elements.getElement(0).findFirst("<a>").innerHTML().split("\\(")[0].trim();
-						final String boardingPointName = elements.getElement(0).findFirst("<a>").innerHTML().split("\\(")[1].split("\\)")[0];
-						final String reservationClass = elements.getElement(1).innerHTML().split("\\:")[1].trim();
-						int noOfPassengers =  Integer.parseInt(elements.getElement(2).innerHTML().split("\\:")[1].trim());
+								serial = passenger.getString("no");
+								bookingStatus = passenger.getString("booking_status");
+								currentStatus = passenger.getString("current_status");
 
-						elements = table.getRow(4);
+								listPassengers.add(new Passenger(serial, bookingStatus,
+										currentStatus));
+							}
 
-						final String chart = elements.getElement(0).innerHTML().split("\\:")[1].trim();
+							CustomListViewAdapterPassengers adapter = new CustomListViewAdapterPassengers(
+									context,
+									R.layout.custom_list_item_pnrsearch_dialog,
+									listPassengers);
 
-						table = userAgentPnr.doc.getTable(1);					
+							ListView l = (ListView) dialog.findViewById(R.id.listView1);
 
-						String serial;
-						String bookingStatus;
-						String currentStatus;
-						final List<Passenger> listPassengers = new ArrayList<Passenger>();
-						for (int i = 1; i <= noOfPassengers; i++) {
+							l.setAdapter(adapter);
+							l.setTextFilterEnabled(true);
 
-							elements = table.getRow(i);
+							TextView pnrNum = (TextView) dialog
+									.findViewById(R.id.pnr_number);
+							pnrNum.setText("PNR: " + pnr);
+							pnrNum.setTypeface(tf);
+							TextView trainInfo = (TextView) dialog
+									.findViewById(R.id.train_name_number);
+							trainInfo.setText(trainName + "(" + trainNo + ")");
+							trainInfo.setTypeface(tf);
+							TextView boardingStation = (TextView) dialog
+									.findViewById(R.id.boardingStation);
+							boardingStation.setText(boardingPointName + "( "
+									+ boardingPointCode + ")");
+							boardingStation.setTypeface(tf);
+							TextView reservationUptoStation = (TextView) dialog
+									.findViewById(R.id.reservationUpto);
+							reservationUptoStation.setText(reservationUptoName + "( "
+									+ reservationUptoCode + ")");
+							reservationUptoStation.setTypeface(tf);
+							TextView departure = (TextView) dialog
+									.findViewById(R.id.dateOfJourney);
+							departure.setText(doj);
+							departure.setTypeface(tf);
+							TextView classs = (TextView) dialog
+									.findViewById(R.id.classs);
+							classs.setText(reservationClass);
+							classs.setTypeface(tf);
+							TextView chartStatus = (TextView) dialog
+									.findViewById(R.id.chart);
+							chartStatus.setText(chart);
+							chartStatus.setTypeface(tf);
 
-							serial = (i)+"";
-							bookingStatus = elements.getElement(1).innerHTML().trim();
-							currentStatus = elements.getElement(2).innerHTML().trim();
+							TextView fromText = (TextView) dialog
+									.findViewById(R.id.textView1);
+							TextView totext = (TextView) dialog
+									.findViewById(R.id.textView3);
+							TextView departureText = (TextView) dialog
+									.findViewById(R.id.textView5);
+							TextView classText = (TextView) dialog
+									.findViewById(R.id.textView7);
+							fromText.setTypeface(tf);
+							totext.setTypeface(tf);
+							departureText.setTypeface(tf);
+							classText.setTypeface(tf);
 
-							listPassengers.add(new Passenger(serial, bookingStatus,
-									currentStatus));
-						}
+							String lastStatus = "";
 
-						CustomListViewAdapterPassengers adapter = new CustomListViewAdapterPassengers(
-								context,
-								R.layout.custom_list_item_pnrsearch_dialog,
-								listPassengers);
+							for (int j = 0; j < noOfPassengers; j++) {
 
-						ListView l = (ListView) dialog.findViewById(R.id.listView1);
+								JSONObject passenger = passengers.getJSONObject(j);
 
-						l.setAdapter(adapter);
-						l.setTextFilterEnabled(true);
+								if (j != noOfPassengers - 1)
+									lastStatus = lastStatus
+									+ passenger.getString("current_status")
+									+ ", ";
+								else
+									lastStatus = lastStatus
+									+ passenger.getString("current_status");
 
-						TextView pnrNum = (TextView) dialog
-								.findViewById(R.id.pnr_number);
-						pnrNum.setText("PNR: " + pnr);
-						pnrNum.setTypeface(tf);
-						TextView trainInfo = (TextView) dialog
-								.findViewById(R.id.train_name_number);
-						trainInfo.setText(trainName + "(" + trainNo + ")");
-						trainInfo.setTypeface(tf);
-						TextView boardingStation = (TextView) dialog
-								.findViewById(R.id.boardingStation);
-						boardingStation.setText(boardingPointName + "( "
-								+ boardingPointCode + ")");
-						boardingStation.setTypeface(tf);
-						TextView reservationUptoStation = (TextView) dialog
-								.findViewById(R.id.reservationUpto);
-						reservationUptoStation.setText(reservationUptoName + "( "
-								+ reservationUptoCode + ")");
-						reservationUptoStation.setTypeface(tf);
-						TextView departure = (TextView) dialog
-								.findViewById(R.id.dateOfJourney);
-						departure.setText(doj);
-						departure.setTypeface(tf);
-						TextView classs = (TextView) dialog
-								.findViewById(R.id.classs);
-						classs.setText(reservationClass);
-						classs.setTypeface(tf);
-						TextView chartStatus = (TextView) dialog
-								.findViewById(R.id.chart);
-						chartStatus.setText(chart);
-						chartStatus.setTypeface(tf);
+							}
 
-						TextView fromText = (TextView) dialog
-								.findViewById(R.id.textView1);
-						TextView totext = (TextView) dialog
-								.findViewById(R.id.textView3);
-						TextView departureText = (TextView) dialog
-								.findViewById(R.id.textView5);
-						TextView classText = (TextView) dialog
-								.findViewById(R.id.textView7);
-						fromText.setTypeface(tf);
-						totext.setTypeface(tf);
-						departureText.setTypeface(tf);
-						classText.setTypeface(tf);
-
-						String lastStatus = "";
-
-						for (int j = 0; j < noOfPassengers; j++) {
-
-							//JSONObject passenger = passengers.getJSONObject(j+1);
-
-							if (j != noOfPassengers - 1)
-								lastStatus = lastStatus
-								+ elements.getElement(2).innerHTML().trim()
-								+ ", ";
+							if (!sqlHelper.doesPnrExistInLastCheckedStatus(pnr))
+								sqlHelper.insertInLastCheckedStatus(new LastStatus(pnr,
+										lastStatus));
 							else
-								lastStatus = lastStatus
-								+ elements.getElement(2).innerHTML().trim();
+								sqlHelper.updateInLastCheckedStatus(new LastStatus(pnr,
+										lastStatus));
 
-						}
+							Button bt = (Button) dialog.findViewById(R.id.diaogclose);
+							bt.setOnClickListener(new View.OnClickListener() {
 
-						if (!sqlHelper.doesPnrExistInLastCheckedStatus(pnr))
-							sqlHelper.insertInLastCheckedStatus(new LastStatus(pnr,
-									lastStatus));
-						else
-							sqlHelper.updateInLastCheckedStatus(new LastStatus(pnr,
-									lastStatus));
+								@Override
+								public void onClick(View v) {
+									dialog.dismiss();
 
-						Button bt = (Button) dialog.findViewById(R.id.diaogclose);
-						bt.setOnClickListener(new View.OnClickListener() {
-
-							@Override
-							public void onClick(View v) {
-								dialog.dismiss();
-
-							}
-						});
-
-						Button share = (Button) dialog.findViewById(R.id.share);
-						share.setOnClickListener(new View.OnClickListener() {
-
-							@Override
-							public void onClick(View v) {
-								// create the send intent
-								Intent shareIntent = new Intent(
-										android.content.Intent.ACTION_SEND);
-
-								// set the type
-								shareIntent.setType("text/plain");
-
-								// add a subject
-								shareIntent.putExtra(
-										android.content.Intent.EXTRA_SUBJECT,
-										"STATUS FOR PNR NO:" + pnr + "\n");
-
-								// build the body of the message to be shared
-								String shareMessage = "PNR: " + pnr + "\n"
-										+ trainName + "(" + trainNo + ")"
-										+ "\nFrom: " + boardingPointName + "( "
-										+ boardingPointCode + ")\nTo: "
-										+ reservationUptoName + "( "
-										+ reservationUptoCode + ") \nDeparture: "
-										+ doj + "\nClass: " + reservationClass;
-
-								for (Passenger p : listPassengers) {
-									shareMessage = shareMessage + "\nPassenger"
-											+ p.getName() + ":- Initial Status:"
-											+ p.getStatusBefore()
-											+ "   Current Status:"
-											+ p.getStatusAfter();
 								}
+							});
 
-								shareMessage = shareMessage
-										+ "\n\n"+chart;
+							Button share = (Button) dialog.findViewById(R.id.share);
+							share.setOnClickListener(new View.OnClickListener() {
+
+								@Override
+								public void onClick(View v) {
+									// create the send intent
+									Intent shareIntent = new Intent(
+											android.content.Intent.ACTION_SEND);
+
+									// set the type
+									shareIntent.setType("text/plain");
+
+									// add a subject
+									shareIntent.putExtra(
+											android.content.Intent.EXTRA_SUBJECT,
+											"STATUS FOR PNR NO:" + pnr + "\n");
+
+									// build the body of the message to be shared
+									String shareMessage = "PNR: " + pnr + "\n"
+											+ trainName + "(" + trainNo + ")"
+											+ "\nFrom: " + boardingPointName + "( "
+											+ boardingPointCode + ")\nTo: "
+											+ reservationUptoName + "( "
+											+ reservationUptoCode + ") \nDeparture: "
+											+ doj + "\nClass: " + reservationClass;
+
+									for (Passenger p : listPassengers) {
+										shareMessage = shareMessage + "\nPassenger"
+												+ p.getName() + ":- Initial Status:"
+												+ p.getStatusBefore()
+												+ "   Current Status:"
+												+ p.getStatusAfter();
+									}
+
+									shareMessage = shareMessage
+											+ "\n\n"+chart;
 
 
-								// add the message
-								shareIntent.putExtra(
-										android.content.Intent.EXTRA_TEXT,
-										shareMessage);
+									// add the message
+									shareIntent.putExtra(
+											android.content.Intent.EXTRA_TEXT,
+											shareMessage);
 
-								// start the chooser for sharing
-								context.startActivity(Intent.createChooser(shareIntent,
-										"Share your PNR Status"));
+									// start the chooser for sharing
+									context.startActivity(Intent.createChooser(shareIntent,
+											"Share your PNR Status"));
 
+								}
+							});
+
+							dialog.getWindow().setBackgroundDrawable(
+									new ColorDrawable(
+											android.graphics.Color.TRANSPARENT));
+
+							if (!((Activity) context).isFinishing()) {
+								dialog.show();
 							}
-						});
 
-						dialog.getWindow().setBackgroundDrawable(
-								new ColorDrawable(
-										android.graphics.Color.TRANSPARENT));
+							if (!sqlHelper.doesPnrExist(pnr)) {
 
-						if (!((Activity) context).isFinishing()) {
-							dialog.show();
+								sqlHelper.insertInCheckedPnrs(new PnrDetail(pnr,
+										trainName, trainNo, fromName, fromCode, toName,
+										toCode, boardingPointName, boardingPointCode,
+										reservationUptoName, reservationUptoCode, doj,
+										reservationClass));
+							}
+
+							CustomListViewAdapterCheckedPnrs adapter1 = new CustomListViewAdapterCheckedPnrs(
+									context,
+									R.layout.custom_list_item_pnr_searched,
+									sqlHelper.getPnrDetail());
+
+							PnrFragment.l.setAdapter(adapter1);
+
+						}catch (Exception e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
 						}
 
-						if (!sqlHelper.doesPnrExist(pnr)) {
+					} else {
 
-							sqlHelper.insertInCheckedPnrs(new PnrDetail(pnr,
-									trainName, trainNo, fromName, fromCode, toName,
-									toCode, boardingPointName, boardingPointCode,
-									reservationUptoName, reservationUptoCode, doj,
-									reservationClass));
-						}
-
-						CustomListViewAdapterCheckedPnrs adapter1 = new CustomListViewAdapterCheckedPnrs(
-								context,
-								R.layout.custom_list_item_pnr_searched,
-								sqlHelper.getPnrDetail());
-
-						PnrFragment.l.setAdapter(adapter1);
-
-					}catch (Exception e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						showAlertDialog(context, "ERROR!", "Some error occured ! Please try again after some time.");
 					}
 
-				} else {
+					super.onPostExecute(result);
 
-					showAlertDialog(context, "ERROR!", err);
+				} catch (Exception e){
+
 				}
 
-				super.onPostExecute(result);
-			
 			}else{
 
 				showAlertDialog(context, "Error", "Network Error Occured. Please try again");

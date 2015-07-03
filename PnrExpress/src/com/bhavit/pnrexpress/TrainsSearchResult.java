@@ -9,6 +9,9 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.protocol.HTTP;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
@@ -39,6 +42,7 @@ import com.bhavit.pnrexpress.model.Train;
 import com.bhavit.pnrexpress.util.AppConstants;
 import com.bhavit.pnrexpress.util.AppHelper;
 import com.bhavit.pnrexpress.util.RestClient;
+import com.google.gson.JsonArray;
 import com.jaunt.Element;
 import com.jaunt.Elements;
 import com.jaunt.NotFound;
@@ -83,36 +87,30 @@ public class TrainsSearchResult extends BaseActivity {
 		UserAgent userAgent = new UserAgent();
 		try {
 
-			userAgent.openContent(result);
+			JSONObject resultObj = new JSONObject(result);
+			JSONArray trains = resultObj.getJSONArray("train");
 
-			Table table = userAgent.doc.getTable("<table>"); // find table
-			// element
+			for (int i = 0; i < trains.length(); i++) {
 
-			Element eTable = userAgent.doc.findFirst("<table>");
+				JSONObject train = trains.getJSONObject(i);
 
-			Elements trs = eTable.findEach("<tr>");
-			Elements tableHeadings = table.getRow(0);
+				String trainNo = train.getString("number");
+				String trainName = train.getString("name");
+				//String fromStation = elements.getElement(2).innerHTML().trim();
+				String departureTime = train.getString("src_departure_time");
 
-			for (int i = 1; i < trs.size(); i++) {
-
-				Elements elements = table.getRow(i);
-				Element anchor = elements.findFirst("<a href='#'>");
-				String trainNo = elements.getElement(0).innerHTML();
-				String trainName = elements.getElement(1).innerHTML().trim()
-						.substring(1);
-				String fromStation = elements.getElement(2).innerHTML().trim();
-				String departureTime = elements.getElement(3).innerHTML()
-						.trim();
-				String toStation = elements.getElement(4).innerHTML().trim();
-				String arrivalTime = elements.getElement(5).innerHTML().trim();
-				String travelTime = elements.getElement(6).innerHTML().trim();
-				String runOn = elements.getElement(7).innerHTML().trim()
-						+ elements.getElement(8).innerHTML().trim()
-						+ elements.getElement(9).innerHTML().trim()
-						+ elements.getElement(10).innerHTML().trim()
-						+ elements.getElement(11).innerHTML().trim()
-						+ elements.getElement(12).innerHTML().trim()
-						+ elements.getElement(13).innerHTML().trim();
+				//String toStation = elements.getElement(4).innerHTML().trim();
+				String arrivalTime = train.getString("dest_arrival_time");
+				//String travelTime = elements.getElement(6).innerHTML().trim();
+				
+				JSONArray runsOnArr = train.getJSONArray("days");
+				
+				String runOn ="";
+				for(int j = 0; j<runsOnArr.length(); j++){
+					
+					runOn = runOn + runsOnArr.getJSONObject(j).getString("runs");
+				}
+				
 				int[] runOnColor = new int[7];
 
 				if (runOn.charAt(0) == 'Y')
@@ -144,32 +142,28 @@ public class TrainsSearchResult extends BaseActivity {
 				else
 					runOnColor[6] = Color.parseColor("#FF0000");
 
-				String classes = "";
+				String classes = "1A|2AC|3AC|SL|CC";
 
-				for (int j = 14; j <= 21; j++) {
+				/*for (int j = 14; j <= 21; j++) {
 					if (!elements.getElement(j).innerHTML().trim().equals("-")) {
 						classes = classes
 								+ tableHeadings.getElement(j).innerHTML()
 								.trim() + "|";
 					}
-				}
+				}*/
 
-				String searchQuery = anchor.getAt("onclick").substring(12, 34);
-				trainsList.add(new Train(trainName, trainNo, fromStation,
-						toStation, timeformat24to12(departureTime),
+				//String searchQuery = anchor.getAt("onclick").substring(12, 34);
+				trainsList.add(new Train(trainName, trainNo, "",
+						"", timeformat24to12(departureTime),
 						timeformat24to12(arrivalTime),
-						travelTime.split("\\:")[0] + "Hours "
-								+ travelTime.split("\\:")[1] + "mins", runOn,
-								runOnColor, classes, searchQuery));
+						"", runOn,
+								runOnColor, classes, ""));
 			}
 
-		} catch (ResponseException e) {
-			// TODO Auto-generated catch block
+		}catch (NullPointerException e) {
 			e.printStackTrace();
-		} catch (NotFound e) {
+		} catch (JSONException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (NullPointerException e) {
 			e.printStackTrace();
 		}
 
@@ -184,7 +178,8 @@ public class TrainsSearchResult extends BaseActivity {
 			public void onItemClick(AdapterView<?> arg0, View arg1,
 					int arg2, long arg3) {
 
-				String url = "http://pnrbuddy.com/hauth/seatavail";
+				
+				String url = "http://api.pnrexpress.in/SeatAvailabilityService";
 
 				ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
 				NetworkInfo networkInfo = cm.getActiveNetworkInfo();
@@ -246,11 +241,11 @@ public class TrainsSearchResult extends BaseActivity {
 
 			try {
 
-				RestClient client2 = new RestClient(params[0]);
+				RestClient client2 = new RestClient(params[0]+"?tnum=14707&from=BKN&to=BDTS&date=10-07-2015&class=SL&quota=GN");
 				client2.addHeader("Content-Type",
 						"application/x-www-form-urlencoded");
 				train = trainsList.get(Integer.parseInt(params[1]));
-				client2.addStringBody("traindtl="
+				/*client2.addStringBody("traindtl="
 						+ train.getSearchQuery()
 						+ "&day="
 						+ params[2]
@@ -260,7 +255,7 @@ public class TrainsSearchResult extends BaseActivity {
 										+ AppConstants
 										.getQuotaValue(TrainsSearchResult.this.quota)
 										+ "&seatclass=" + train.getClasses().split("\\|")[0]
-												+ "&classopt=ZZ");
+												+ "&classopt=ZZ");*/
 
 				result = client2.executePost();
 
