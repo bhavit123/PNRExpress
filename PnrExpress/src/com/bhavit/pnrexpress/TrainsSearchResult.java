@@ -42,6 +42,8 @@ import com.bhavit.pnrexpress.model.Availability;
 import com.bhavit.pnrexpress.model.Train;
 import com.bhavit.pnrexpress.util.AppConstants;
 import com.bhavit.pnrexpress.util.AppHelper;
+import com.bhavit.pnrexpress.util.BaseAsyncTask;
+import com.bhavit.pnrexpress.util.BaseAsyncTask.Method;
 import com.bhavit.pnrexpress.util.RestClient;
 import com.google.gson.JsonArray;
 import com.jaunt.Element;
@@ -198,11 +200,27 @@ public class TrainsSearchResult extends BaseActivity {
 						// if no network is available networkInfo will be null
 						// otherwise check if we are connected to internet
 						if (networkInfo != null && networkInfo.isConnected()) {
-							MyAsyncTask asynctask = new MyAsyncTask();
-							asynctask.execute(url, String.valueOf(arg2), day,
-									month, classs,
-									AppConstants.getQuotaValue(quota));
-
+							
+							Train train = trainsList.get(arg2);
+							String details = train.getSearchQuery();
+							
+							MyAsyncTask asynctask = new MyAsyncTask(TrainsSearchResult.this, Method.GET);
+							asynctask.execute(url
+											+ "?tnum="
+											+ details.split("\\|")[0]
+											+ "&from="
+											+ details.split("\\|")[1]
+											+ "&to="
+											+ details.split("\\|")[2]
+											+ "&date="
+											+ details.split("\\|")[3]
+											+ "&class="
+											+ train.getClasses().split("\\|")[0]
+											+ "&quota="
+											+ AppConstants
+													.getQuotaValue(TrainsSearchResult.this.quota), String.valueOf(arg2));
+									
+									
 						} else {
 
 							Toast.makeText(context,
@@ -215,10 +233,19 @@ public class TrainsSearchResult extends BaseActivity {
 
 	}
 
-	public class MyAsyncTask extends AsyncTask<String, Void, Void> implements
+	public class MyAsyncTask extends BaseAsyncTask implements
 			OnItemSelectedListener {
 
-		String result;
+		public MyAsyncTask(Context context, Method method,
+				boolean showLoadingDialog) {
+			super(context, method, showLoadingDialog);
+			// TODO Auto-generated constructor stub
+		}
+		public MyAsyncTask(Context context, Method method) {
+			super(context, method);
+			// TODO Auto-generated constructor stub
+		}
+
 		String fromSt;
 		String toSt;
 		String quotaName;
@@ -230,75 +257,21 @@ public class TrainsSearchResult extends BaseActivity {
 		ListView availabilities;
 		ArrayList<Availability> allAvails;
 		Train train;
-
+		
 		@Override
-		protected void onPreExecute() {
-
-			p = new ProgressDialog(TrainsSearchResult.this);
-			p.show();
-			p.setContentView(R.layout.custom_progressdialog);
-			p.setCancelable(false);
-			p.setCanceledOnTouchOutside(false);
-
-			super.onPreExecute();
-		}
-
-		@Override
-		protected Void doInBackground(String... params) {
-
-			param0 = params[0];
+		protected String doInBackground(String... params) {
+			
 			param1 = params[1];
-			param2 = params[2];
-			param3 = params[3];
-
-			try {
-
-				train = trainsList.get(Integer.parseInt(params[1]));
-				String details = train.getSearchQuery();
-
-				RestClient client2 = new RestClient(
-						params[0]
-								+ "?tnum="
-								+ details.split("\\|")[0]
-								+ "&from="
-								+ details.split("\\|")[1]
-								+ "&to="
-								+ details.split("\\|")[2]
-								+ "&date="
-								+ details.split("\\|")[3]
-								+ "&class="
-								+ train.getClasses().split("\\|")[0]
-								+ "&quota="
-								+ AppConstants
-										.getQuotaValue(TrainsSearchResult.this.quota));
-				client2.addHeader("Content-Type",
-						"application/x-www-form-urlencoded");
-
-				/*
-				 * client2.addStringBody("traindtl=" + train.getSearchQuery() +
-				 * "&day=" + params[2] + "&month=" + params[3] + "&quota=" +
-				 * AppConstants .getQuotaValue(TrainsSearchResult.this.quota) +
-				 * "&seatclass=" + train.getClasses().split("\\|")[0] +
-				 * "&classopt=ZZ");
-				 */
-
-				result = client2.executeGet();
-
-			} catch (Exception e) {
-
-			}
-
-			return null;
+			
+			return super.doInBackground(params);
 		}
-
+		
 		@Override
-		protected void onPostExecute(Void res) {
+		protected void onPostExecute(String result) {
 
-			p.dismiss();
-			System.out.println(result);
+			super.onPostExecute(result);
+			
 			if (result != null) {
-				if (!result
-						.contains("Unable to get availability due to network error")) {
 
 					dialog = new Dialog(TrainsSearchResult.this);
 					dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -465,16 +438,10 @@ public class TrainsSearchResult extends BaseActivity {
 						dialog.show();
 					}
 
-				} else {
-
-					showAlertDialog(TrainsSearchResult.this, "Error",
-							"Network Error Occured. Please try again");
-				}
 			} else {
 				showAlertDialog(TrainsSearchResult.this, "Error",
 						"Could not connect to server. Please try again");
 			}
-			super.onPostExecute(res);
 		}
 
 		@Override
@@ -519,7 +486,7 @@ public class TrainsSearchResult extends BaseActivity {
 							client2.addHeader("Content-Type",
 									"application/x-www-form-urlencoded");
 
-							result = client2.executeGet();
+							String result = client2.executeGet();
 
 							UserAgent userAgent = new UserAgent();
 							try {

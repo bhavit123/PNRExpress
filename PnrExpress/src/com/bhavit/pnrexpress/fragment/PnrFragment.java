@@ -53,7 +53,8 @@ public class PnrFragment extends BaseFragment {
 		setDrawerAndSettingsButtons(rootView);
 
 		SharedPreferences pfs = getActivity().getSharedPreferences("pnrexpress", 0);
-		boolean isMyServiceRunning = pfs.getBoolean("isServiceRunning", false);
+		boolean isMyServiceRunning = true;
+				//pfs.getBoolean("isServiceRunning", false);
 
 		if (!isMyServiceRunning) { 
 
