@@ -68,7 +68,7 @@ public class PnrFragment extends BaseFragment {
 			AlarmManager alarm = (AlarmManager) getActivity().getSystemService(Context.ALARM_SERVICE); // for
 			// 60*60*1000
 			alarm.setRepeating(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(),
-					15 * 60 * 1000, pintent);
+					60 * 60 * 1000, pintent);
 
 			pfs.edit().putBoolean("isServiceRunning", true).apply();
 		}

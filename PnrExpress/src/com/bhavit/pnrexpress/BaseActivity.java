@@ -53,6 +53,7 @@ import com.bhavit.pnrexpress.model.LastStatus;
 import com.bhavit.pnrexpress.model.Passenger;
 import com.bhavit.pnrexpress.model.PnrDetail;
 import com.bhavit.pnrexpress.model.Station;
+import com.bhavit.pnrexpress.util.AppHelper;
 import com.bhavit.pnrexpress.util.RestClient;
 import com.google.gson.JsonArray;
 import com.jaunt.Element;
@@ -325,7 +326,7 @@ public class BaseActivity extends Activity {
 				}
 
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
+				AppHelper.toast(context,"Network Error Occured. Please try again");
 				e.printStackTrace();
 			}
 
