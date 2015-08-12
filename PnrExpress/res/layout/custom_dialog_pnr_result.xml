@@ -75,7 +75,8 @@
                     android:layout_alignParentTop="true"
                     android:layout_marginRight="10dp"
                     android:text="Mumbai Central (BCT)"
-                    android:textAppearance="?android:attr/textAppearanceMedium" />
+                    android:textSize="15sp"
+                    android:textColor="#ffffff"/>
             </RelativeLayout>
 
             <ImageView
@@ -110,7 +111,8 @@
                     android:layout_alignParentTop="true"
                     android:layout_marginRight="10dp"
                     android:text="Jaipur (JP)"
-                    android:textAppearance="?android:attr/textAppearanceMedium" />
+                    android:textSize="15sp"
+                    android:textColor="#ffffff" />
             </RelativeLayout>
 
             <ImageView
@@ -145,7 +147,8 @@
                     android:layout_alignParentTop="true"
                     android:layout_marginRight="10dp"
                     android:text="Thu, 17 Apr, 2014"
-                    android:textAppearance="?android:attr/textAppearanceMedium" />
+                    android:textSize="15sp"
+                    android:textColor="#ffffff" />
             </RelativeLayout>
 
             <ImageView
@@ -180,7 +183,8 @@
                     android:layout_alignParentTop="true"
                     android:layout_marginRight="10dp"
                     android:text="Sleeper (SL)"
-                    android:textAppearance="?android:attr/textAppearanceMedium" />
+                    android:textSize="15sp"
+                    android:textColor="#ffffff" />
             </RelativeLayout>
 
             <ImageView
@@ -251,8 +255,9 @@
                 <ListView
                     android:id="@+id/listView1"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginRight="10dp" >
+                    android:layout_height="65dp"
+                    android:layout_marginRight="10dp"
+                    android:layout_marginLeft="10dp" >
                 </ListView>
 
                 <ImageView

@@ -267,6 +267,39 @@ public class SqlHelper extends SQLiteOpenHelper {
 		return list;
 
 	}
+	
+	// get Details from pNRDetails when a pnr num is given
+		public PnrDetail getPnrDetail(String pnr) {
+
+			PnrDetail obj = null;
+			String query = "select * from CHECKED_PNRS where PNR_NUMBER ='"+pnr+"'";
+			SQLiteDatabase db = this.getWritableDatabase();
+
+			Cursor cursor = db.rawQuery(query, null);
+			if (cursor.moveToFirst()) {
+				do {
+					obj = new PnrDetail();
+					obj.setPnrNumber(cursor.getString(0));
+					obj.setTrainName(cursor.getString(1));
+					obj.setTrainNumber(cursor.getString(2));
+					obj.setFromStationName(cursor.getString(3));
+					obj.setFromStationCode(cursor.getString(4));
+					obj.setToStationName(cursor.getString(5));
+					obj.setToStationCode(cursor.getString(6));
+					obj.setBoardingStationName(cursor.getString(7));
+					obj.setBoardingStationCode(cursor.getString(8));
+					obj.setReservationUptoStationName(cursor.getString(9));
+					obj.setReservationUptoStationCode(cursor.getString(10));
+					obj.setDateOfJourney(cursor.getString(11));
+					obj.setReservationClass(cursor.getString(11));
+
+				} while (cursor.moveToNext());
+
+			}
+			cursor.close();
+			return obj;
+
+		}
 
 	public List<PnrDetail> getUpcomingPnrDetails() {
 		List<PnrDetail> list = new ArrayList<PnrDetail>();

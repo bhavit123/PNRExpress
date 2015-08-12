@@ -59,6 +59,8 @@ import com.bhavit.pnrexpress.adapters.CustomListAdapterSearchHistory;
 import com.bhavit.pnrexpress.model.SearchHistory;
 import com.bhavit.pnrexpress.util.AppConstants;
 import com.bhavit.pnrexpress.util.AppHelper;
+import com.bhavit.pnrexpress.util.BaseAsyncTask;
+import com.bhavit.pnrexpress.util.BaseAsyncTask.Method;
 import com.bhavit.pnrexpress.util.RestClient;
 
 public class SeatAvailabilityFragment extends BaseFragment implements
@@ -244,7 +246,9 @@ OnClickListener {
 									+ "-"
 									+ (date.getMonth() + 1 < 10 ? "0"
 											+ (date.getMonth() + 1) : date
-											.getMonth() + 1);
+											.getMonth() + 1)
+									+ "-"
+									+ date.getYear();
 
 							ConnectivityManager cm = (ConnectivityManager) getActivity()
 									.getSystemService(
@@ -256,11 +260,11 @@ OnClickListener {
 							if (networkInfo != null
 									&& networkInfo.isConnected()) {
 
-								MyAsyncTask asynctask = new MyAsyncTask();
+								MyAsyncTask asynctask = new MyAsyncTask(getActivity(), Method.GET);
 								asynctask.execute(url2+"?from="+stationCode1.getText()
 										.toString().trim()+"&to="+stationCode2
 										.getText().toString().trim()+"&date="+
-										dateString);
+										dateString+"&class=all");
 							} else {
 								Toast.makeText(getActivity(),
 										"No internet connection !!",
@@ -290,50 +294,20 @@ OnClickListener {
 		return rootView;
 	}
 
-	public class MyAsyncTask extends AsyncTask<String, Void, Void> {
+	public class MyAsyncTask extends BaseAsyncTask {
 
-		String result;
+		public MyAsyncTask(Context context, Method method) {
+			super(context, method);
+			// TODO Auto-generated constructor stub
+		}
+
 		String fromSt;
 		String toSt;
-		ProgressDialog p;
 
 		@Override
-		protected void onPreExecute() {
-
-			p = new ProgressDialog(getActivity());
-			p.show();
-			p.setContentView(R.layout.custom_progressdialog);
-			p.setCancelable(false);
-			p.setCanceledOnTouchOutside(false);
-
-			super.onPreExecute();
-		}
-
-		@Override
-		protected Void doInBackground(String... params) {
-
-			try {
-
-				RestClient client = new RestClient(params[0]);
-				client.addHeader("Content-Type",
-						"application/x-www-form-urlencoded");
-
-				result = client.executeGet();
-
-			} catch (Exception e) {
-
-				e.printStackTrace();
-			}
-
-			return null;
-		}
-
-		@Override
-		protected void onPostExecute(Void res) {
-
-			System.out.println(result);
-
-			p.dismiss();
+		protected void onPostExecute(String result) {
+			
+			super.onPostExecute(result);
 
 			if (result != null) {
 				if (!result
@@ -360,6 +334,7 @@ OnClickListener {
 									+ date.getDayOfMonth() : ""
 									+ date.getDayOfMonth());
 					i.putExtra("month", String.valueOf(date.getMonth() + 1));
+					i.putExtra("year", String.valueOf(date.getYear()));
 					i.putExtra("quota", quota.getSelectedItem().toString());
 					i.putExtra("from-to", stationCode1.getText().toString()
 							+ " to " + stationCode2.getText().toString());
@@ -375,7 +350,7 @@ OnClickListener {
 				BaseActivity.showAlertDialog(getActivity(), "Error!",
 						"Could not connect to server. Please try again");
 			}
-			super.onPostExecute(res);
+			
 		}
 
 	}

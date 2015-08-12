@@ -15,6 +15,7 @@ import android.widget.TextView;
 
 import com.bhavit.pnrexpress.R;
 import com.bhavit.pnrexpress.model.PnrDetail;
+import com.bhavit.pnrexpress.util.AppHelper;
 
 public class CustomListViewAdapterCheckedPnrs extends ArrayAdapter<PnrDetail> {
 	 
@@ -62,7 +63,9 @@ public class CustomListViewAdapterCheckedPnrs extends ArrayAdapter<PnrDetail> {
         holder.pnrNum.setText("PNR: "+rowItem.getPnrNumber().toUpperCase(Locale.getDefault()));
         holder.fromStation.setText("FROM: "+rowItem.getBoardingStationName()+"("+rowItem.getBoardingStationCode().toUpperCase(Locale.getDefault())+")");
         holder.toStation.setText("TO: "+rowItem.getReservationUptoStationName()+"("+rowItem.getReservationUptoStationCode().toUpperCase(Locale.getDefault())+")");
-        holder.doj.setText("DOJ: "+rowItem.getDateOfJourney().toUpperCase(Locale.getDefault()));
+        holder.doj.setText("DOJ: "+AppHelper.changeDateFormat(
+        		rowItem.getDateOfJourney(), "yyyy-MM-dd",
+				"MMMM dd, yyyy"));
         holder.icon.setImageResource(R.drawable.list_train_1);
         
         holder.pnrNum.setTypeface(tf);

@@ -1,12 +1,14 @@
 package com.bhavit.pnrexpress;
 
 import java.io.IOException;
+import java.text.DateFormat;
 import java.text.DateFormatSymbols;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
@@ -32,6 +34,7 @@ import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
@@ -54,6 +57,8 @@ import com.bhavit.pnrexpress.model.Passenger;
 import com.bhavit.pnrexpress.model.PnrDetail;
 import com.bhavit.pnrexpress.model.Station;
 import com.bhavit.pnrexpress.util.AppHelper;
+import com.bhavit.pnrexpress.util.BaseAsyncTask;
+import com.bhavit.pnrexpress.util.BaseAsyncTask.Method;
 import com.bhavit.pnrexpress.util.RestClient;
 import com.google.gson.JsonArray;
 import com.jaunt.Element;
@@ -244,8 +249,8 @@ public class BaseActivity extends Activity {
 		// otherwise check if we are connected
 		if (networkInfo != null && networkInfo.isConnected()) {
 
-			MyAsyncTask obj = new MyAsyncTask();
-			obj.execute(pnrUrl, pnr);
+			MyAsyncTask obj = new MyAsyncTask(context, Method.GET);
+			obj.execute(pnrUrl+"?pnr="+pnr, pnr);
 
 
 		} else {
@@ -256,47 +261,42 @@ public class BaseActivity extends Activity {
 		}
 	}
 
-	public class MyAsyncTask extends AsyncTask<String, Void, Void> {
+	public class MyAsyncTask extends BaseAsyncTask{
+		Context context;
+		public MyAsyncTask(Context context, Method method) {
+			super(context, method);
+			this.context = context;			
+			// TODO Auto-generated constructor stub
+		}
+
 		String resultPnr = null;
 		String resultRoute;
 		ProgressBar bar;
 		Dialog dialog;
 		String pnr;
-		ProgressDialog p;
 
 		@Override
-		protected void onPreExecute() {
-			//bar = (ProgressBar) findViewById(R.id.progressBar);
-			//bar.setVisibility(ProgressBar.VISIBLE);
-			p = new ProgressDialog(context);
-			p.show();
-			p.setContentView(R.layout.custom_progressdialog);
-			p.setCancelable(false);
-			p.setCanceledOnTouchOutside(false);
-
-			super.onPreExecute();
-		}
-
-		@Override
-		protected Void doInBackground(String... params) {
+		protected String doInBackground(String... params) {
 
 			pnr = params[1];
 
-			RestClient client = new RestClient(params[0]+"?pnr="+pnr);
-			client.addHeader("Content-Type", "application/x-www-form-urlencoded");
+			
 
 			try {
-				resultPnr  = client.executeGet();
-
-				JSONObject resultObj = new JSONObject(resultPnr);
-				String trainNo = resultObj.getString("train_num");
 
 				if(!sqlHelper.doesPnrExist(pnr)){
+					
+					RestClient client = new RestClient(params[0]);
+					resultPnr  = client.executeGet();
+
+					JSONObject resultObj = new JSONObject(resultPnr);
+					String trainNo = resultObj.getString("train_num");
 
 					//Getting the route train information 
 					RestClient clientRoute = new RestClient("http://api.pnrexpress.in/TrainRouteService?trainno="+trainNo);
-
+					Log.i("URL", "http://api.pnrexpress.in/TrainRouteService?trainno="+trainNo);
 					resultRoute = clientRoute.executeGet();
+					Log.i("RESPONSE", resultRoute);
 
 					JSONObject resultJson = new JSONObject(resultRoute);
 					
@@ -328,21 +328,17 @@ public class BaseActivity extends Activity {
 			} catch (Exception e) {
 				AppHelper.toast(context,"Network Error Occured. Please try again");
 				e.printStackTrace();
-			}
-
-
-			return null;
+			}			
+			
+			return super.doInBackground(params);
 		}
 
 		@Override
-		protected void onPostExecute(Void result) {
+		protected void onPostExecute(String result) {
 
-			p.dismiss();
-			//bar.setVisibility(ProgressBar.INVISIBLE);
-			// Toast.makeText(getApplicationContext(), this.result+"",
-			// Toast.LENGTH_LONG).show();
+			super.onPostExecute(result);
 
-			if(resultPnr != null){
+			if(result != null){
 
 				dialog = new Dialog(context);
 				dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -350,16 +346,14 @@ public class BaseActivity extends Activity {
 				dialog.setCanceledOnTouchOutside(false);
 				try {
 
-					JSONObject resultObj = new JSONObject(resultPnr);
-					if (!resultObj.getBoolean("error")) {
+					JSONObject resultObj = new JSONObject(result);
+					if (resultObj.getString("error").equals("null")) {
 
 						try {
 
 							final String trainNo = resultObj.getString("train_num");
 							final String trainName = resultObj.getString("train_name");
-							final String doj =resultObj.getString("doj");
-
-
+							final String doj = resultObj.getString("doj")	;				
 							final String fromCode =  resultObj.getJSONObject("from_station").getString("code");
 							final String fromName = resultObj.getJSONObject("from_station").getString("name");
 							final String toCode = resultObj.getJSONObject("to_station").getString("code");
@@ -367,11 +361,10 @@ public class BaseActivity extends Activity {
 							final String reservationUptoCode = resultObj.getJSONObject("reservation_upto").getString("code");
 							final String reservationUptoName = resultObj.getJSONObject("reservation_upto").getString("name");
 
-
 							final String boardingPointCode = resultObj.getJSONObject("boarding_point").getString("code");
 							final String boardingPointName = resultObj.getJSONObject("boarding_point").getString("name");
 							final String reservationClass = resultObj.getString("class");
-							int noOfPassengers =  resultObj.getInt("total_passengers");
+							int noOfPassengers =  resultObj.getInt("no_of_passengers");
 
 							final String chart = resultObj.getString("chart_prepared").equals("N")?"Chart not prepared.":"Chart prepared.";				
 
@@ -386,7 +379,7 @@ public class BaseActivity extends Activity {
 
 								JSONObject passenger = passengers.getJSONObject(i);
 
-								serial = passenger.getString("no");
+								serial = passenger.getString("sr");
 								bookingStatus = passenger.getString("booking_status");
 								currentStatus = passenger.getString("current_status");
 
@@ -424,7 +417,8 @@ public class BaseActivity extends Activity {
 							reservationUptoStation.setTypeface(tf);
 							TextView departure = (TextView) dialog
 									.findViewById(R.id.dateOfJourney);
-							departure.setText(doj);
+							departure.setText(AppHelper.changeDateFormat(doj, "yyyy-MM-dd",
+									"MMMM dd, yyyy"));
 							departure.setTypeface(tf);
 							TextView classs = (TextView) dialog
 									.findViewById(R.id.classs);
@@ -496,11 +490,11 @@ public class BaseActivity extends Activity {
 									// add a subject
 									shareIntent.putExtra(
 											android.content.Intent.EXTRA_SUBJECT,
-											"STATUS FOR PNR NO:" + pnr + "\n");
+											"STATUS FOR PNR NO:" + pnr);
 
 									// build the body of the message to be shared
-									String shareMessage = "PNR: " + pnr + "\n"
-											+ trainName + "(" + trainNo + ")"
+									String shareMessage = 
+											 trainName + "(" + trainNo + ")"
 											+ "\nFrom: " + boardingPointName + "( "
 											+ boardingPointCode + ")\nTo: "
 											+ reservationUptoName + "( "
@@ -565,10 +559,9 @@ public class BaseActivity extends Activity {
 						showAlertDialog(context, "ERROR!", "Some error occured ! Please try again after some time.");
 					}
 
-					super.onPostExecute(result);
-
 				} catch (Exception e){
-
+					e.printStackTrace();
+					showAlertDialog(context, "Error", "Network Error Occured. Please try again");
 				}
 
 			}else{

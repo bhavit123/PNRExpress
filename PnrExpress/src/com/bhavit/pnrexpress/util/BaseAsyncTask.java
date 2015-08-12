@@ -1,6 +1,8 @@
 package com.bhavit.pnrexpress.util;
 
 
+import com.bhavit.pnrexpress.R;
+
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
@@ -26,7 +28,7 @@ public class BaseAsyncTask extends AsyncTask<String, Void, String> {
 		this.showLoadingDialog = showLoadingDialog;
 		this.method = method;
 	}
-	
+
 	public BaseAsyncTask(Context context, Method method) {
 		super();
 		this.context = context;
@@ -44,7 +46,8 @@ public class BaseAsyncTask extends AsyncTask<String, Void, String> {
 			dialog.setCanceledOnTouchOutside(false);
 			dialog.setCancelable(false);
 			dialog.show();
-
+			dialog.setContentView(R.layout.custom_progressdialog);
+		
 		}
 	}
 
@@ -57,7 +60,7 @@ public class BaseAsyncTask extends AsyncTask<String, Void, String> {
 			Log.i("URL", params[0]);
 			response = rClient.executeGet();
 			Log.i("Response", response, null);
-			
+
 		} else {
 
 			RestClient rClient = new RestClient(params[0]);
@@ -72,8 +75,10 @@ public class BaseAsyncTask extends AsyncTask<String, Void, String> {
 
 	@Override
 	protected void onPostExecute(String result) {
-		dialog.dismiss();
+		if (showLoadingDialog) {
+			dialog.dismiss();
+		}
 		super.onPostExecute(result);
 	}
-	
+
 }

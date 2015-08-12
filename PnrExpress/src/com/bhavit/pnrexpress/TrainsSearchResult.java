@@ -27,6 +27,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
+import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
@@ -53,17 +54,22 @@ import com.jaunt.ResponseException;
 import com.jaunt.UserAgent;
 import com.jaunt.component.Table;
 
-public class TrainsSearchResult extends BaseActivity {
+public class TrainsSearchResult extends BaseActivity implements OnItemSelectedListener{
 
 	ArrayList<Train> trainsList;
 	ListView searchResultTrains;
 	String day;
 	String month;
-	String classs, quota;
+	String year;
+	String selectedQuota;
 	String from_to;
 	TextView date, heading;
 	String trainNumber;
-
+	Train train;
+	ArrayList<Availability> allAvails;
+	Spinner classs, quota;
+	ListView availabilities;
+	
 	@SuppressLint("SetJavaScriptEnabled")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -74,9 +80,10 @@ public class TrainsSearchResult extends BaseActivity {
 
 		trainsList = new ArrayList<Train>();
 		String result = getIntent().getExtras().getString("result");
-		quota = getIntent().getExtras().getString("quota");
+		selectedQuota = getIntent().getExtras().getString("quota");
 		day = getIntent().getExtras().getString("day");
 		month = getIntent().getExtras().getString("month");
+		year = getIntent().getExtras().getString("year");
 		from_to = getIntent().getExtras().getString("from-to");
 
 		heading = (TextView) findViewById(R.id.textView_heading);
@@ -87,11 +94,10 @@ public class TrainsSearchResult extends BaseActivity {
 		date.setText(day + " " + getMonthForInt(Integer.parseInt(month) - 1));
 		date.setTypeface(tf);
 
-		UserAgent userAgent = new UserAgent();
 		try {
 
 			JSONObject resultObj = new JSONObject(result);
-			JSONArray trains = resultObj.getJSONArray("train");
+			JSONArray trains = resultObj.getJSONArray("trains");
 
 			for (int i = 0; i < trains.length(); i++) {
 
@@ -148,27 +154,29 @@ public class TrainsSearchResult extends BaseActivity {
 				else
 					runOnColor[6] = Color.parseColor("#FF0000");
 
-				String classes = "SL|3AC|2AC|1A|CC";
+				String classes = "";
 
-				/*
-				 * for (int j = 14; j <= 21; j++) { if
-				 * (!elements.getElement(j).innerHTML().trim().equals("-")) {
-				 * classes = classes + tableHeadings.getElement(j).innerHTML()
-				 * .trim() + "|"; } }
-				 */
+				JSONArray classesArr = train.getJSONArray("classes");
+				for (int j = 0; j < classesArr.length(); j++) {
+					if (classesArr.getJSONObject(j).getString("available").equals("Y")) {
+
+						classes = classes
+								+ (!classes.equals("")?"|":"") +classesArr.getJSONObject(j).getString("class-code");
+					}
+				}
 
 				String searchQuery = trainNo
 						+ "|"
 						+ from_to.split(" to ")[0]
-						+ "|"
-						+ from_to.split(" to ")[1]
-						+ "|"
-						+ day
-						+ "-"
-						+ (Integer.parseInt(month)<10?"0"+month:month)
-						+ "-"
-						+ (GregorianCalendar.getInstance())
-								.get(GregorianCalendar.YEAR);
+								+ "|"
+								+ from_to.split(" to ")[1]
+										+ "|"
+										+ day
+										+ "-"
+										+ (Integer.parseInt(month)<10?"0"+month:month)
+										+ "-"
+										+ year;
+
 				trainsList.add(new Train(trainName, trainNo, "", "",
 						timeformat24to12(departureTime),
 						timeformat24to12(arrivalTime), "", runOn, runOnColor,
@@ -187,54 +195,53 @@ public class TrainsSearchResult extends BaseActivity {
 		searchResultTrains.setAdapter(adapter);
 
 		searchResultTrains
-				.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+		.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
-					@Override
-					public void onItemClick(AdapterView<?> arg0, View arg1,
-							int arg2, long arg3) {
+			@Override
+			public void onItemClick(AdapterView<?> arg0, View arg1,
+					int position, long arg3) {
 
-						String url = "http://api.pnrexpress.in/SeatAvailabilityService";
+				String url = "http://api.pnrexpress.in/SeatAvailabilityService";
 
-						ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-						NetworkInfo networkInfo = cm.getActiveNetworkInfo();
-						// if no network is available networkInfo will be null
-						// otherwise check if we are connected to internet
-						if (networkInfo != null && networkInfo.isConnected()) {
-							
-							Train train = trainsList.get(arg2);
-							String details = train.getSearchQuery();
-							
-							MyAsyncTask asynctask = new MyAsyncTask(TrainsSearchResult.this, Method.GET);
-							asynctask.execute(url
-											+ "?tnum="
-											+ details.split("\\|")[0]
+				ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+				NetworkInfo networkInfo = cm.getActiveNetworkInfo();
+				// if no network is available networkInfo will be null
+				// otherwise check if we are connected to internet
+				if (networkInfo != null && networkInfo.isConnected()) {
+
+					train = trainsList.get(position);
+					String details = train.getSearchQuery();
+
+					MyAsyncTask asynctask = new MyAsyncTask(TrainsSearchResult.this, Method.GET);
+					asynctask.execute(url
+							+ "?tnum="
+									+ details.split("\\|")[0]
 											+ "&from="
 											+ details.split("\\|")[1]
-											+ "&to="
-											+ details.split("\\|")[2]
-											+ "&date="
-											+ details.split("\\|")[3]
-											+ "&class="
-											+ train.getClasses().split("\\|")[0]
-											+ "&quota="
-											+ AppConstants
-													.getQuotaValue(TrainsSearchResult.this.quota), String.valueOf(arg2));
-									
-									
-						} else {
+													+ "&to="
+													+ details.split("\\|")[2]
+															+ "&date="
+															+ details.split("\\|")[3]
+																	+ "&class="
+																	+ train.getClasses().split("\\|")[0]
+																			+ "&quota="
+																			+ AppConstants
+																			.getQuotaValue(TrainsSearchResult.this.selectedQuota), String.valueOf(position));
 
-							Toast.makeText(context,
-									"No internet connection !!",
-									Toast.LENGTH_LONG).show();
 
-						}
-					}
-				});
+				} else {
+
+					Toast.makeText(context,
+							"No internet connection !!",
+							Toast.LENGTH_LONG).show();
+
+				}
+			}
+		});
 
 	}
 
-	public class MyAsyncTask extends BaseAsyncTask implements
-			OnItemSelectedListener {
+	public class MyAsyncTask extends BaseAsyncTask {
 
 		public MyAsyncTask(Context context, Method method,
 				boolean showLoadingDialog) {
@@ -252,191 +259,188 @@ public class TrainsSearchResult extends BaseActivity {
 		ProgressDialog p;
 		Dialog dialog;
 		String param0, param1, param2, param3;
-		TextView trainName, trainNo, from_to;
-		Spinner classs, quota;
-		ListView availabilities;
-		ArrayList<Availability> allAvails;
-		Train train;
-		
+		TextView trainName, trainNo, from_to;		
+
 		@Override
 		protected String doInBackground(String... params) {
-			
+
 			param1 = params[1];
-			
+
 			return super.doInBackground(params);
 		}
-		
+
 		@Override
 		protected void onPostExecute(String result) {
 
 			super.onPostExecute(result);
-			
+
 			if (result != null) {
 
-					dialog = new Dialog(TrainsSearchResult.this);
-					dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-					dialog.setContentView(R.layout.custom_dialog_seatavailability_result);
-					dialog.setCanceledOnTouchOutside(false);
+				dialog = new Dialog(TrainsSearchResult.this);
+				dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+				dialog.setContentView(R.layout.custom_dialog_seatavailability_result);
+				dialog.setCanceledOnTouchOutside(false);
 
-					allAvails = new ArrayList<Availability>();
+				allAvails = new ArrayList<Availability>();
 
-					try {
+				try {
 
-						JSONObject resultObj = new JSONObject(result);
+					JSONObject resultObj = new JSONObject(result);
+					JSONObject availabilityObj = resultObj.getJSONObject("availability");
+					trainName = (TextView) dialog
+							.findViewById(R.id.train_name);
+					trainName.setText(availabilityObj.getString("train_name"));
+					trainName.setTypeface(tf);
 
-						trainName = (TextView) dialog
-								.findViewById(R.id.train_name);
-						trainName.setText(resultObj.getString("train_name"));
-						trainName.setTypeface(tf);
+					trainNo = (TextView) dialog.findViewById(R.id.train_no);
+					trainNo.setText("(" + availabilityObj.getString("train_number")
+							+ ")");
+					trainNo.setTypeface(tf);
+					trainNumber = availabilityObj.getString("train_number");
 
-						trainNo = (TextView) dialog.findViewById(R.id.train_no);
-						trainNo.setText("(" + resultObj.getString("train_number")
-								+ ")");
-						trainNo.setTypeface(tf);
-						trainNumber = resultObj.getString("train_number");
+					from_to = (TextView) dialog.findViewById(R.id.from_to);
+					from_to.setText(availabilityObj.getJSONObject("from").getString("name")
+							+ " to " + availabilityObj.getJSONObject("to").getString("name"));
+					from_to.setTypeface(tf);
 
-						from_to = (TextView) dialog.findViewById(R.id.from_to);
-						from_to.setText(resultObj.getJSONObject("from").getString("name")
-								+ " to " + resultObj.getJSONObject("to").getString("name"));
-						from_to.setTypeface(tf);
+					quotaName = availabilityObj.getJSONObject("quota").getString("quota_name");
 
-						quotaName = resultObj.getJSONObject("quota").getString("quota_name");
+					JSONArray availabilitiesArr = availabilityObj.getJSONArray("availability_status");
 
-						JSONArray availabilitiesArr = resultObj.getJSONArray("availability");
+					for (int i = 0; i < availabilitiesArr.length(); i++) {
 
-						for (int i = 0; i < availabilitiesArr.length(); i++) {
+						JSONObject availability = availabilitiesArr.getJSONObject(i);
 
-							JSONObject availability = availabilitiesArr.getJSONObject(i);
+						String doj = availability.getString("date");
+						String status = availability.getString("status");
 
-							String doj = availability.getString("date");
-							String status = availability.getString("status");
+						allAvails.add(new Availability(doj, status));
 
-							allAvails.add(new Availability(doj, status));
-
-						}
-
-						classs = (Spinner) dialog.findViewById(R.id.classs);
-						ArrayAdapter<String> adapter = new ArrayAdapter<String>(
-								TrainsSearchResult.this,
-								android.R.layout.simple_spinner_item, train
-										.getClasses().split("\\|"));
-						adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-						classs.setAdapter(adapter);
-
-						classs.setPrompt("Class");
-
-						//int pos = 7;
-						for (int i = 0; i < train.getClasses().split("\\|").length; i++) {
-
-							if (classs
-									.getItemAtPosition(i)
-									.toString()
-									.equals(train.getClasses().split("\\|")[train
-											.getClasses().split("\\|").length - 1])) {
-								//pos = i;
-							}
-						}
-
-						//classs.setSelection(pos, true);
-						classs.setOnItemSelectedListener(this);
-						// .setOnItem
-
-						String[] array = new String[2];
-						AppConstants.getQuotas().keySet().toArray(array);
-						quota = (Spinner) dialog.findViewById(R.id.quota);
-						quota.setPrompt("Quota");
-						adapter = new ArrayAdapter<String>(
-								TrainsSearchResult.this,
-								android.R.layout.simple_spinner_item, array);
-						adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-						quota.setAdapter(adapter);
-
-						for (int i = 0; i < 2; i++) {
-
-							if (quota.getItemAtPosition(i).toString()
-									.equals(TrainsSearchResult.this.quota)) {
-								//pos = i;
-							}
-						}
-						//quota.setSelection(pos, true);
-						quota.setOnItemSelectedListener(this);
-
-						availabilities = (ListView) dialog
-								.findViewById(R.id.listView1);
-						CustomListViewAdapterAvailability customAdapter = new CustomListViewAdapterAvailability(
-								TrainsSearchResult.this,
-								R.layout.custom_list_item_availabilities,
-								allAvails);
-						availabilities.setAdapter(customAdapter);
-
-					} catch (JSONException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
 					}
 
-					Button close = (Button) dialog
-							.findViewById(R.id.dialogclose);
-					close.setOnClickListener(new View.OnClickListener() {
+					classs = (Spinner) dialog.findViewById(R.id.classs);
+					ArrayAdapter<String> adapter = new ArrayAdapter<String>(
+							TrainsSearchResult.this,
+							android.R.layout.simple_spinner_item, train
+							.getClasses().split("\\|"));
+					adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+					classs.setAdapter(adapter);
 
-						@Override
-						public void onClick(View v) {
-							dialog.dismiss();
+					classs.setPrompt("Class");
 
+					//int pos = 0;
+					for (int i = 0; i < train.getClasses().split("\\|").length; i++) {
+
+						if (classs
+								.getItemAtPosition(i)
+								.toString()
+								.equals(train.getClasses().split("\\|")[train
+								                                        .getClasses().split("\\|").length - 1])) {
+							//pos = i;
 						}
-					});
-
-					Button share = (Button) dialog.findViewById(R.id.share);
-					share.setOnClickListener(new View.OnClickListener() {
-
-						@Override
-						public void onClick(View v) {
-							// create the send intent
-							Intent shareIntent = new Intent(
-									android.content.Intent.ACTION_SEND);
-
-							// set the type
-							shareIntent.setType("text/plain");
-
-							// add a subject
-							shareIntent.putExtra(
-									android.content.Intent.EXTRA_SUBJECT,
-									"Availability for " + trainName.getText()
-											+ "\n");
-
-							// build the body of the message to be shared
-							String shareMessage = trainName.getText() + ""
-									+ trainNo.getText() + "" + "\n"
-									+ from_to.getText() + "\nQuota: "
-									+ quotaName + "\n\nAVAILABILITY ("
-									+ classs.getSelectedItem().toString()
-									+ ") : ";
-
-							for (Availability a : allAvails) {
-								shareMessage = shareMessage + "\n"
-										+ a.getDate() + "  " + "("
-										+ a.getAvailability() + ")";
-							}
-
-							// add the message
-							shareIntent.putExtra(
-									android.content.Intent.EXTRA_TEXT,
-									shareMessage);
-
-							// start the chooser for sharing
-							TrainsSearchResult.this.startActivity(Intent
-									.createChooser(shareIntent,
-											"Share your PNR Status"));
-
-						}
-					});
-
-					dialog.getWindow().setBackgroundDrawable(
-							new ColorDrawable(
-									android.graphics.Color.TRANSPARENT));
-
-					if (!TrainsSearchResult.this.isFinishing()) {
-						dialog.show();
 					}
+
+					//classs.setSelection(pos, true);
+					classs.setOnItemSelectedListener(TrainsSearchResult.this);
+					// .setOnItem
+
+					String[] array = new String[2];
+					AppConstants.getQuotas().keySet().toArray(array);
+					quota = (Spinner) dialog.findViewById(R.id.quota);
+					quota.setPrompt("Quota");
+					adapter = new ArrayAdapter<String>(
+							TrainsSearchResult.this,
+							android.R.layout.simple_spinner_item, array);
+					adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+					quota.setAdapter(adapter);
+
+					int pos = 0;
+					for (int i = 0; i < 2; i++) {
+
+						if (quota.getItemAtPosition(i).toString()
+								.equals(TrainsSearchResult.this.selectedQuota)) {
+							pos = i;
+						}
+					}
+					quota.setSelection(pos);
+					quota.setOnItemSelectedListener(TrainsSearchResult.this);
+
+					availabilities = (ListView) dialog
+							.findViewById(R.id.listView1);
+					CustomListViewAdapterAvailability customAdapter = new CustomListViewAdapterAvailability(
+							TrainsSearchResult.this,
+							R.layout.custom_list_item_availabilities,
+							allAvails);
+					availabilities.setAdapter(customAdapter);
+
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
+				Button close = (Button) dialog
+						.findViewById(R.id.dialogclose);
+				close.setOnClickListener(new View.OnClickListener() {
+
+					@Override
+					public void onClick(View v) {
+						dialog.dismiss();
+
+					}
+				});
+
+				Button share = (Button) dialog.findViewById(R.id.share);
+				share.setOnClickListener(new View.OnClickListener() {
+
+					@Override
+					public void onClick(View v) {
+						// create the send intent
+						Intent shareIntent = new Intent(
+								android.content.Intent.ACTION_SEND);
+
+						// set the type
+						shareIntent.setType("text/plain");
+
+						// add a subject
+						shareIntent.putExtra(
+								android.content.Intent.EXTRA_SUBJECT,
+								"Availability for " + trainName.getText()
+								+ "\n");
+
+						// build the body of the message to be shared
+						String shareMessage = trainName.getText() + ""
+								+ trainNo.getText() + "" + "\n"
+								+ from_to.getText() + "\nQuota: "
+								+ quotaName + "\n\nAVAILABILITY ("
+								+ classs.getSelectedItem().toString()
+								+ ") : ";
+
+						for (Availability a : allAvails) {
+							shareMessage = shareMessage + "\n"
+									+ a.getDate() + "  " + "("
+									+ a.getAvailability() + ")";
+						}
+
+						// add the message
+						shareIntent.putExtra(
+								android.content.Intent.EXTRA_TEXT,
+								shareMessage);
+
+						// start the chooser for sharing
+						TrainsSearchResult.this.startActivity(Intent
+								.createChooser(shareIntent,
+										"Share your PNR Status"));
+
+					}
+				});
+
+				dialog.getWindow().setBackgroundDrawable(
+						new ColorDrawable(
+								android.graphics.Color.TRANSPARENT));
+
+				if (!TrainsSearchResult.this.isFinishing()) {
+					dialog.show();
+				}
 
 			} else {
 				showAlertDialog(TrainsSearchResult.this, "Error",
@@ -444,107 +448,113 @@ public class TrainsSearchResult extends BaseActivity {
 			}
 		}
 
-		@Override
-		public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2,
-				long arg3) {
+	}
+	
+	@Override
+	public void onItemSelected(AdapterView<?> arg0, View arg1, int position,
+			long arg3) {
 
-			p.show();
 
-			allAvails.clear();
+		/*final ProgressDialog p = new ProgressDialog(context);
+		p.setMessage("Loading...");
+		p.setCanceledOnTouchOutside(false);
+		p.setCancelable(false);
+		p.show();
+		p.setContentView(R.layout.custom_progressdialog); 
+*/
+		allAvails.clear();
 
-			ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-			NetworkInfo networkInfo = cm.getActiveNetworkInfo();
-			// if no network is available networkInfo will be null
-			// otherwise check if we are connected to internet
-			if (networkInfo != null && networkInfo.isConnected()) {
+		ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo networkInfo = cm.getActiveNetworkInfo();
+		// if no network is available networkInfo will be null
+		// otherwise check if we are connected to internet
+		if (networkInfo != null && networkInfo.isConnected()) {
 
-				new Thread(new Runnable() {
+			new Thread(new Runnable() {
 
-					@Override
-					public void run() {
+				@Override
+				public void run() {
 
+					try {
+
+						String details = train.getSearchQuery();
+
+						RestClient client2 = new RestClient(
+								"http://api.pnrexpress.in/SeatAvailabilityService"
+								+ "?tnum="
+								+ details.split("\\|")[0]
+										+ "&from="
+										+ details.split("\\|")[1]
+												+ "&to="
+												+ details.split("\\|")[2]
+														+ "&date="
+														+ details.split("\\|")[3]
+																+ "&class="
+																+ classs.getSelectedItem().toString()
+																+ "&quota="
+																+ AppConstants.getQuotaValue(quota
+																		.getSelectedItem().toString()));
+						client2.addHeader("Content-Type",
+								"application/x-www-form-urlencoded");
+
+						String result = client2.executeGet();
+
+						UserAgent userAgent = new UserAgent();
 						try {
-							
-							train = trainsList.get(Integer.parseInt(param1));
-							String details = train.getSearchQuery();
+							userAgent.openContent(result);
 
-							RestClient client2 = new RestClient(
-									param0
-											+ "?tnum="
-											+ details.split("\\|")[0]
-											+ "&from="
-											+ details.split("\\|")[1]
-											+ "&to="
-											+ details.split("\\|")[2]
-											+ "&date="
-											+ details.split("\\|")[3]
-											+ "&class="
-											+ classs.getSelectedItem().toString()
-											+ "&quota="
-											+ AppConstants.getQuotaValue(quota
-													.getSelectedItem().toString()));
-							client2.addHeader("Content-Type",
-									"application/x-www-form-urlencoded");
+							JSONObject resultObj = new JSONObject(result);
 
-							String result = client2.executeGet();
+							JSONArray availabilitiesArr = resultObj.getJSONArray("availability");
 
-							UserAgent userAgent = new UserAgent();
-							try {
-								userAgent.openContent(result);
+							for (int i = 0; i < availabilitiesArr.length(); i++) {
 
-								JSONObject resultObj = new JSONObject(result);
+								JSONObject availability = availabilitiesArr.getJSONObject(i);
 
-								JSONArray availabilitiesArr = resultObj.getJSONArray("availability");
+								String doj = availability.getString("date");
+								String status = availability.getString("status");
 
-								for (int i = 0; i < availabilitiesArr.length(); i++) {
+								allAvails.add(new Availability(doj, status));
 
-									JSONObject availability = availabilitiesArr.getJSONObject(i);
-
-									String doj = availability.getString("date");
-									String status = availability.getString("status");
-
-									allAvails.add(new Availability(doj, status));
-
-								}
-							} catch (ResponseException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
 							}
-
-						} catch (Exception e) {
-
+						} catch (ResponseException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
 						}
 
-						runOnUiThread(new Runnable() {
-							public void run() {
-
-								CustomListViewAdapterAvailability adapter = new CustomListViewAdapterAvailability(
-										TrainsSearchResult.this,
-										R.layout.custom_list_item_availabilities,
-										allAvails);
-								availabilities.setAdapter(adapter);
-								p.dismiss();
-							}
-						});
-
+					} catch (Exception e) {
+						e.printStackTrace();
 					}
-				}).start();
 
-			} else {
+					runOnUiThread(new Runnable() {
+						public void run() {
 
-				Toast.makeText(context, "No internet connection !!",
-						Toast.LENGTH_LONG).show();
+							CustomListViewAdapterAvailability adapter = new CustomListViewAdapterAvailability(
+									TrainsSearchResult.this,
+									R.layout.custom_list_item_availabilities,
+									allAvails);
+							availabilities.setAdapter(adapter);
+							//p.dismiss();
+						}
+					});
 
-			}
+				}
+			}).start();
+
+		} else {
+
+			Toast.makeText(context, "No internet connection !!",
+					Toast.LENGTH_LONG).show();
+
 		}
+	}
 
-		@Override
-		public void onNothingSelected(AdapterView<?> arg0) {
-			// TODO Auto-generated method stub
-
-		}
+	@Override
+	public void onNothingSelected(AdapterView<?> arg0) {
+		// TODO Auto-generated method stub
 
 	}
+
 
 	public void getRoute(View v) {
 

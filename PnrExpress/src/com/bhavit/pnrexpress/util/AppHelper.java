@@ -2,11 +2,17 @@ package com.bhavit.pnrexpress.util;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.graphics.drawable.ColorDrawable;
+import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.View;
 import android.view.Window;
 import android.view.View.OnClickListener;
@@ -15,6 +21,7 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -28,6 +35,9 @@ public class AppHelper {
 	public static Dialog autoCompleteInputDialog;
 	public static AutoCompleteTextView inputDialogAutoCompletetv;
 
+	
+	
+	
 	public static boolean isArrayEmpty(Object[][] arr) {
 
 		boolean empty = true;
@@ -135,6 +145,21 @@ public class AppHelper {
 	public static void toast(Context context, String message){
 		
 		Toast.makeText(context, message, Toast.LENGTH_LONG).show();
+		
+	}
+	
+	public static String changeDateFormat(String date, String fromFormat, String toFormat){
+		
+		DateFormat originalFormat = new SimpleDateFormat(fromFormat);
+		DateFormat targetFormat = new SimpleDateFormat(toFormat);
+		Date date2 = null;
+		try {
+			date2 = originalFormat.parse(date);
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return targetFormat.format(date2);
 		
 	}
 
