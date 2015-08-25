@@ -54,7 +54,7 @@ import com.jaunt.ResponseException;
 import com.jaunt.UserAgent;
 import com.jaunt.component.Table;
 
-public class TrainsSearchResult extends BaseActivity implements OnItemSelectedListener{
+public class TrainsSearchResult extends BaseActivity{
 
 	ArrayList<Train> trainsList;
 	ListView searchResultTrains;
@@ -69,7 +69,8 @@ public class TrainsSearchResult extends BaseActivity implements OnItemSelectedLi
 	ArrayList<Availability> allAvails;
 	Spinner classs, quota;
 	ListView availabilities;
-	
+	Button getAvail;
+
 	@SuppressLint("SetJavaScriptEnabled")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -85,6 +86,7 @@ public class TrainsSearchResult extends BaseActivity implements OnItemSelectedLi
 		month = getIntent().getExtras().getString("month");
 		year = getIntent().getExtras().getString("year");
 		from_to = getIntent().getExtras().getString("from-to");
+
 
 		heading = (TextView) findViewById(R.id.textView_heading);
 		heading.setTypeface(BaseActivity.tf);
@@ -215,23 +217,24 @@ public class TrainsSearchResult extends BaseActivity implements OnItemSelectedLi
 					MyAsyncTask asynctask = new MyAsyncTask(TrainsSearchResult.this, Method.GET);
 					asynctask.execute(url
 							+ "?tnum="
-									+ details.split("\\|")[0]
-											+ "&from="
-											+ details.split("\\|")[1]
-													+ "&to="
-													+ details.split("\\|")[2]
-															+ "&date="
-															+ details.split("\\|")[3]
-																	+ "&class="
-																	+ train.getClasses().split("\\|")[0]
-																			+ "&quota="
-																			+ AppConstants
-																			.getQuotaValue(TrainsSearchResult.this.selectedQuota), String.valueOf(position));
+							+ details.split("\\|")[0]
+									+ "&from="
+									+ details.split("\\|")[1]
+											+ "&to="
+											+ details.split("\\|")[2]
+													+ "&date="
+													+ details.split("\\|")[3]
+															+ "&class="
+															+ train.getClasses().split("\\|")[train
+														                                        .getClasses().split("\\|").length - 1]
+																	+ "&quota="
+																	+ AppConstants
+																	.getQuotaValue(TrainsSearchResult.this.selectedQuota), String.valueOf(position));
 
 
 				} else {
 
-					Toast.makeText(context,
+					Toast.makeText(TrainsSearchResult.this,
 							"No internet connection !!",
 							Toast.LENGTH_LONG).show();
 
@@ -299,8 +302,8 @@ public class TrainsSearchResult extends BaseActivity implements OnItemSelectedLi
 					trainNumber = availabilityObj.getString("train_number");
 
 					from_to = (TextView) dialog.findViewById(R.id.from_to);
-					from_to.setText(availabilityObj.getJSONObject("from").getString("name")
-							+ " to " + availabilityObj.getJSONObject("to").getString("name"));
+					from_to.setText(availabilityObj.getJSONObject("from").getString("code")
+							+ " to " + availabilityObj.getJSONObject("to").getString("code"));
 					from_to.setTypeface(tf);
 
 					quotaName = availabilityObj.getJSONObject("quota").getString("quota_name");
@@ -328,7 +331,7 @@ public class TrainsSearchResult extends BaseActivity implements OnItemSelectedLi
 
 					classs.setPrompt("Class");
 
-					//int pos = 0;
+					int pos = 0;
 					for (int i = 0; i < train.getClasses().split("\\|").length; i++) {
 
 						if (classs
@@ -336,13 +339,11 @@ public class TrainsSearchResult extends BaseActivity implements OnItemSelectedLi
 								.toString()
 								.equals(train.getClasses().split("\\|")[train
 								                                        .getClasses().split("\\|").length - 1])) {
-							//pos = i;
+							pos = i;
 						}
 					}
 
-					//classs.setSelection(pos, true);
-					classs.setOnItemSelectedListener(TrainsSearchResult.this);
-					// .setOnItem
+					classs.setSelection(pos, true);
 
 					String[] array = new String[2];
 					AppConstants.getQuotas().keySet().toArray(array);
@@ -354,7 +355,7 @@ public class TrainsSearchResult extends BaseActivity implements OnItemSelectedLi
 					adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 					quota.setAdapter(adapter);
 
-					int pos = 0;
+					pos = 0;
 					for (int i = 0; i < 2; i++) {
 
 						if (quota.getItemAtPosition(i).toString()
@@ -363,7 +364,6 @@ public class TrainsSearchResult extends BaseActivity implements OnItemSelectedLi
 						}
 					}
 					quota.setSelection(pos);
-					quota.setOnItemSelectedListener(TrainsSearchResult.this);
 
 					availabilities = (ListView) dialog
 							.findViewById(R.id.listView1);
@@ -377,6 +377,45 @@ public class TrainsSearchResult extends BaseActivity implements OnItemSelectedLi
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
+
+				getAvail = (Button) dialog
+						.findViewById(R.id.btn_getAvail);
+				getAvail.setOnClickListener(new View.OnClickListener() {
+
+					@Override
+					public void onClick(View v) {
+
+						String details = train.getSearchQuery();
+						
+						ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+						NetworkInfo networkInfo = cm.getActiveNetworkInfo();
+						// if no network is available networkInfo will be null
+						// otherwise check if we are connected to internet
+						if (networkInfo != null && networkInfo.isConnected()) {
+
+						LocalAsyncTaskSpinnersChanged task = new LocalAsyncTaskSpinnersChanged(TrainsSearchResult.this, Method.GET);
+						task.execute("http://api.pnrexpress.in/SeatAvailabilityService"
+								+ "?tnum="
+								+ details.split("\\|")[0]
+										+ "&from="
+										+ details.split("\\|")[1]
+												+ "&to="
+												+ details.split("\\|")[2]
+														+ "&date="
+														+ details.split("\\|")[3]
+																+ "&class="
+																+ classs.getSelectedItem().toString()
+																+ "&quota="
+																+ AppConstants.getQuotaValue(quota
+																		.getSelectedItem().toString()));
+						}else {
+
+							Toast.makeText(context, "No internet connection !!",
+									Toast.LENGTH_LONG).show();
+
+						}
+					}
+				});
 
 				Button close = (Button) dialog
 						.findViewById(R.id.dialogclose);
@@ -449,112 +488,52 @@ public class TrainsSearchResult extends BaseActivity implements OnItemSelectedLi
 		}
 
 	}
-	
-	@Override
-	public void onItemSelected(AdapterView<?> arg0, View arg1, int position,
-			long arg3) {
 
+	public class LocalAsyncTaskSpinnersChanged extends BaseAsyncTask {
 
-		/*final ProgressDialog p = new ProgressDialog(context);
-		p.setMessage("Loading...");
-		p.setCanceledOnTouchOutside(false);
-		p.setCancelable(false);
-		p.show();
-		p.setContentView(R.layout.custom_progressdialog); 
-*/
-		allAvails.clear();
+		public LocalAsyncTaskSpinnersChanged(Context context, Method method) {
+			super(context, method);
+			// TODO Auto-generated constructor stub
+		}
 
-		ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-		NetworkInfo networkInfo = cm.getActiveNetworkInfo();
-		// if no network is available networkInfo will be null
-		// otherwise check if we are connected to internet
-		if (networkInfo != null && networkInfo.isConnected()) {
+		@Override
+		protected void onPostExecute(String result) {
 
-			new Thread(new Runnable() {
+			super.onPostExecute(result);
 
-				@Override
-				public void run() {
+			allAvails.clear();
 
-					try {
+				try{
 
-						String details = train.getSearchQuery();
+					JSONObject resultObj = new JSONObject(result);
 
-						RestClient client2 = new RestClient(
-								"http://api.pnrexpress.in/SeatAvailabilityService"
-								+ "?tnum="
-								+ details.split("\\|")[0]
-										+ "&from="
-										+ details.split("\\|")[1]
-												+ "&to="
-												+ details.split("\\|")[2]
-														+ "&date="
-														+ details.split("\\|")[3]
-																+ "&class="
-																+ classs.getSelectedItem().toString()
-																+ "&quota="
-																+ AppConstants.getQuotaValue(quota
-																		.getSelectedItem().toString()));
-						client2.addHeader("Content-Type",
-								"application/x-www-form-urlencoded");
+					JSONArray availabilitiesArr = resultObj.getJSONObject("availability").getJSONArray("availability_status");
 
-						String result = client2.executeGet();
+					for (int i = 0; i < availabilitiesArr.length(); i++) {
 
-						UserAgent userAgent = new UserAgent();
-						try {
-							userAgent.openContent(result);
+						JSONObject availability = availabilitiesArr.getJSONObject(i);
 
-							JSONObject resultObj = new JSONObject(result);
+						String doj = availability.getString("date");
+						String status = availability.getString("status");
 
-							JSONArray availabilitiesArr = resultObj.getJSONArray("availability");
+						allAvails.add(new Availability(doj, status));
 
-							for (int i = 0; i < availabilitiesArr.length(); i++) {
-
-								JSONObject availability = availabilitiesArr.getJSONObject(i);
-
-								String doj = availability.getString("date");
-								String status = availability.getString("status");
-
-								allAvails.add(new Availability(doj, status));
-
-							}
-						} catch (ResponseException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-
-					} catch (Exception e) {
-						e.printStackTrace();
 					}
 
-					runOnUiThread(new Runnable() {
-						public void run() {
-
-							CustomListViewAdapterAvailability adapter = new CustomListViewAdapterAvailability(
-									TrainsSearchResult.this,
-									R.layout.custom_list_item_availabilities,
-									allAvails);
-							availabilities.setAdapter(adapter);
-							//p.dismiss();
-						}
-					});
-
+				} catch (Exception e) {
+					Toast.makeText(TrainsSearchResult.this, "Nework error occured !",
+							Toast.LENGTH_LONG).show();
 				}
-			}).start();
 
-		} else {
+				CustomListViewAdapterAvailability adapter = new CustomListViewAdapterAvailability(
+						TrainsSearchResult.this,
+						R.layout.custom_list_item_availabilities,
+						allAvails);
+				availabilities.setAdapter(adapter);
 
-			Toast.makeText(context, "No internet connection !!",
-					Toast.LENGTH_LONG).show();
+			} 
 
 		}
-	}
-
-	@Override
-	public void onNothingSelected(AdapterView<?> arg0) {
-		// TODO Auto-generated method stub
-
-	}
-
 
 	public void getRoute(View v) {
 

@@ -280,8 +280,6 @@ public class BaseActivity extends Activity {
 
 			pnr = params[1];
 
-			
-
 			try {
 
 				if(!sqlHelper.doesPnrExist(pnr)){
@@ -326,7 +324,7 @@ public class BaseActivity extends Activity {
 				}
 
 			} catch (Exception e) {
-				AppHelper.toast(context,"Network Error Occured. Please try again");
+				
 				e.printStackTrace();
 			}			
 			
@@ -550,13 +548,13 @@ public class BaseActivity extends Activity {
 							PnrFragment.l.setAdapter(adapter1);
 
 						}catch (Exception e) {
-							// TODO Auto-generated catch block
+							showAlertDialog(context, "ERROR!","Some error occured ! Please try again after some time.");
 							e.printStackTrace();
 						}
 
 					} else {
 
-						showAlertDialog(context, "ERROR!", "Some error occured ! Please try again after some time.");
+						showAlertDialog(context, "ERROR!", resultObj.getString("error"));
 					}
 
 				} catch (Exception e){
@@ -569,7 +567,6 @@ public class BaseActivity extends Activity {
 				showAlertDialog(context, "Error", "Network Error Occured. Please try again");
 
 			}
-
 
 		}
 

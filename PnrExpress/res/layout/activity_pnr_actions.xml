@@ -70,6 +70,7 @@
         android:background="@drawable/black_button"
         style="@style/ButtonText"
         android:textSize="23sp"
+        android:visibility="gone"
         android:text="LIVE RUNNING STATUS" />
 
     

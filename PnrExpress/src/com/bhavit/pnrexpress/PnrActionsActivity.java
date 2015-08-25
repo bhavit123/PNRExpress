@@ -1,5 +1,12 @@
 package com.bhavit.pnrexpress;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.concurrent.TimeUnit;
+
 import com.bhavit.pnrexpress.model.PnrDetail;
 
 import android.content.Intent;
@@ -12,13 +19,34 @@ import android.widget.Toast;
 public class PnrActionsActivity extends BaseActivity {
 
 	String pnrNo;
+	Button liveRunningStatus;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_pnr_actions);
+		
+		liveRunningStatus = (Button) findViewById(R.id.btn_livestatus);
 
 		pnrNo = getIntent().getExtras().getString("pnrNo");
+		PnrDetail obj = BaseActivity.sqlHelper.getPnrDetail(pnrNo);
+		
+		SimpleDateFormat myFormat = new SimpleDateFormat("yyyy-MM-dd");
+		String doj = obj.getDateOfJourney();
+		Calendar today = GregorianCalendar.getInstance();
+
+		try {
+		    Date date1 = myFormat.parse(today.get(Calendar.YEAR)+"-"+(today.get(Calendar.MONTH)+1)+"-"+Calendar.DAY_OF_MONTH);
+		    Date date2 = myFormat.parse(doj);
+		    long diff = date2.getTime() - date1.getTime();
+		    System.out.println ("Days: " + TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS));
+		    
+		    if(TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS) < 1){
+		    	liveRunningStatus.setVisibility(View.VISIBLE);
+		    }
+		} catch (ParseException e) {
+		    e.printStackTrace();
+		}
 
 		TextView heading = (TextView) findViewById(R.id.textView_heading);
 		heading.setTypeface(tf);
@@ -57,7 +85,7 @@ public class PnrActionsActivity extends BaseActivity {
 			}
 		});
 
-		Button liveRunningStatus = (Button) findViewById(R.id.btn_livestatus);
+		
 		liveRunningStatus.setTypeface(tf);
 		liveRunningStatus.setOnClickListener(new View.OnClickListener() {
 
@@ -72,19 +100,7 @@ public class PnrActionsActivity extends BaseActivity {
 
 				i.putExtra(
 						"date",
-						obj.getDateOfJourney().split("\\-")[2]
-								+ (Integer.parseInt(obj.getDateOfJourney()
-										.split("\\-")[1]) < 10 ? ("0" + Integer
-										.parseInt(obj.getDateOfJourney().split(
-												"\\-")[1])) : Integer
-										.parseInt(obj.getDateOfJourney().split(
-												"\\-")[1]))
-								+ (Integer.parseInt(obj.getDateOfJourney()
-										.split("\\-")[0]) < 10 ? ("0" + Integer
-										.parseInt(obj.getDateOfJourney().split(
-												"\\-")[0])) : Integer
-										.parseInt(obj.getDateOfJourney().split(
-												"\\-")[0])));
+						obj.getDateOfJourney().replace("-", ""));
 				startActivity(i);
 
 			}

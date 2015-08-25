@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content" >
+    android:layout_height="wrap_content"
+    tools:context=".TrainsSearchResult" >
 
     <ScrollView
         android:layout_width="wrap_content"
@@ -24,10 +26,10 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:layout_marginTop="10dp"
+                android:onClick="getRoute"
                 android:text="RANAKPUR EXPRESS"
                 android:textColor="#FFFFFF"
-                android:textSize="25sp"
-                android:onClick="getRoute" />
+                android:textSize="25sp" />
 
             <TextView
                 android:id="@+id/train_no"
@@ -43,8 +45,8 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:text="Bikaner Jn to Mumbai Central"
-                android:textSize="16sp"
-                android:textColor="#FFFFFF" />
+                android:textColor="#FFFFFF"
+                android:textSize="20sp" />
 
             <LinearLayout
                 android:id="@+id/title_divider"
@@ -72,6 +74,18 @@
                 android:layout_marginTop="5dp"
                 android:entries="@array/train_quotas" />
 
+            <Button
+                android:id="@+id/btn_getAvail"
+                style="@style/ButtonText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:background="@drawable/green_button"
+                android:text="Get Availability"
+                android:textSize="16sp" />
+
             <ImageView
                 android:id="@+id/divider1"
                 android:layout_width="wrap_content"
@@ -80,6 +94,7 @@
                 android:layout_marginRight="10dp"
                 android:layout_marginTop="10dp"
                 android:src="@drawable/quote_title_underline" />
+
             <ImageView
                 android:id="@+id/divider12"
                 android:layout_width="wrap_content"
@@ -113,8 +128,6 @@
                     android:textAppearance="?android:attr/textAppearanceMedium" />
             </RelativeLayout>
 
-            
-
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="0.1dp"
@@ -123,32 +136,29 @@
                 android:background="#FFFFFF" >
             </LinearLayout>
 
+            <ListView
+                android:id="@+id/listView1"
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:layout_marginRight="10dp" >
+            </ListView>
 
-                <ListView
-                    android:id="@+id/listView1"
-                    android:layout_width="match_parent"
-                    android:layout_height="100dp"
-                    android:layout_marginRight="10dp" >
-                </ListView>
-
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="10dp"
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginRight="10dp"
-                    android:src="@drawable/quote_title_underline" />
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:src="@drawable/quote_title_underline" />
 
             <Button
                 android:id="@+id/share"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_centerHorizontal="true"
-                android:layout_centerVertical="true"
                 android:layout_gravity="center_horizontal"
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="8dp"
                 android:background="@drawable/share_button" />
 
             <!-- style="@style/ButtonText" -->

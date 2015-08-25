@@ -20,7 +20,7 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 
-public class LiveRunningStatusActivity extends Activity {
+public class LiveRunningStatusActivity extends BaseActivity {
 
 	ListView list;
 	int selectedPosition;
@@ -69,8 +69,10 @@ public class LiveRunningStatusActivity extends Activity {
 			p.dismiss();
 			ArrayList<LiveTrainRunningStatus> array = new ArrayList<LiveTrainRunningStatus>();
 			JSONObject root;
+			String error = "";
 			try {
 				root = new JSONObject(result);
+				error = root.getString("error");
 				boolean flag = true;
 				selectedPosition = 0;
 				if(root.isNull("error")){
@@ -115,7 +117,7 @@ public class LiveRunningStatusActivity extends Activity {
 					}
 				}
 			} catch (JSONException e) {
-				// TODO Auto-generated catch block
+				showAlertDialog(LiveRunningStatusActivity.this, "ERROR!", error);
 				e.printStackTrace();
 			}
 
