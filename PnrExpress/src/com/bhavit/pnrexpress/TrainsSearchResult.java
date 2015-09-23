@@ -160,7 +160,7 @@ public class TrainsSearchResult extends BaseActivity{
 
 				JSONArray classesArr = train.getJSONArray("classes");
 				for (int j = 0; j < classesArr.length(); j++) {
-					if (classesArr.getJSONObject(j).getString("available").equals("Y")) {
+					if (!classesArr.getJSONObject(j).getString("available").equals("N")) {
 
 						classes = classes
 								+ (!classes.equals("")?"|":"") +classesArr.getJSONObject(j).getString("class-code");
@@ -373,10 +373,6 @@ public class TrainsSearchResult extends BaseActivity{
 							allAvails);
 					availabilities.setAdapter(customAdapter);
 
-				} catch (JSONException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
 
 				getAvail = (Button) dialog
 						.findViewById(R.id.btn_getAvail);
@@ -481,6 +477,11 @@ public class TrainsSearchResult extends BaseActivity{
 					dialog.show();
 				}
 
+				} catch (JSONException e) {
+					showAlertDialog(TrainsSearchResult.this, "Error",
+							"Some Error Occured. Please try again later.");
+					e.printStackTrace();
+				}
 			} else {
 				showAlertDialog(TrainsSearchResult.this, "Error",
 						"Could not connect to server. Please try again");

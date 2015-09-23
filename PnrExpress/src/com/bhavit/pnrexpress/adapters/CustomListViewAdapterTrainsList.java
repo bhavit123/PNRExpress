@@ -33,7 +33,7 @@ public class CustomListViewAdapterTrainsList extends ArrayAdapter<Train> {
 		TextView trainNameNum;
 		TextView arrivalTime;
 		TextView departureTime;
-		TextView travelTime;
+		//TextView travelTime;
 		ImageView icon;
 		TextView monday;
 		TextView tuesday;
@@ -57,7 +57,7 @@ public class CustomListViewAdapterTrainsList extends ArrayAdapter<Train> {
 			holder.trainNameNum = (TextView) convertView.findViewById(R.id.train);
 			holder.arrivalTime = (TextView) convertView.findViewById(R.id.arrival_time);
 			holder.departureTime = (TextView) convertView.findViewById(R.id.departure_time);
-			holder.travelTime = (TextView) convertView.findViewById(R.id.travel_time);
+			//holder.travelTime = (TextView) convertView.findViewById(R.id.travel_time);
 			holder.icon = (ImageView) convertView.findViewById(R.id.train_icon);
 			holder.monday = (TextView) convertView.findViewById(R.id.monday);
 			holder.tuesday = (TextView) convertView.findViewById(R.id.tuesday);
@@ -76,13 +76,13 @@ public class CustomListViewAdapterTrainsList extends ArrayAdapter<Train> {
 		holder.trainNameNum.setText(rowItem.getTrainName().toUpperCase(Locale.getDefault())+"("+rowItem.getTrainNo()+")");
 		holder.arrivalTime.setText("ARRIVAL: "+rowItem.getArrivalTime());
 		holder.departureTime.setText("DEPARTURE: "+rowItem.getDepartureTime());
-		holder.travelTime.setText("TRAVEL-TIME: "+rowItem.getTravelTime());
+		//holder.travelTime.setText("TRAVEL-TIME: "+rowItem.getTravelTime());
 		holder.icon.setImageResource(R.drawable.list_train_1);
 
 		holder.trainNameNum.setTypeface(tf);
 		holder.arrivalTime.setTypeface(tf);
 		holder.departureTime.setTypeface(tf);
-		holder.travelTime.setTypeface(tf);
+		//holder.travelTime.setTypeface(tf);
 
 		holder.monday.setBackgroundColor(rowItem.getRunsOnColor()[0]);
 
