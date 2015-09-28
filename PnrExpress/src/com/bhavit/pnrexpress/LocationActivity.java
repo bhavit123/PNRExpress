@@ -9,6 +9,7 @@ import org.json.JSONObject;
 
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.location.Address;
 import android.location.Criteria;
 import android.location.Geocoder;
@@ -27,6 +28,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bhavit.pnrexpress.adapters.CustomListViewAdapterStationsList;
+import com.bhavit.pnrexpress.model.Passenger;
 import com.bhavit.pnrexpress.model.Station;
 import com.bhavit.pnrexpress.util.RestClient;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -51,6 +53,7 @@ public class LocationActivity extends FragmentActivity implements LocationListen
 	HashMap<String, LatLng> locMap;
 	HashMap<String, Marker> markerMap;
 	TextView heading;
+	Button share;
 
 	@SuppressLint("NewApi")
 	@Override
@@ -59,7 +62,7 @@ public class LocationActivity extends FragmentActivity implements LocationListen
 		setContentView(R.layout.activity_location);
 
 		locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-
+		share = (Button)findViewById(R.id.button2);
 		whereAmI = (Button)findViewById(R.id.button1);
 		whereAmI.setTypeface(BaseActivity.tf);
 		whereAmI.setOnClickListener(new View.OnClickListener() {
@@ -154,13 +157,13 @@ public class LocationActivity extends FragmentActivity implements LocationListen
 		protected void onPostExecute(String result) {
 			whereAmI.setVisibility(View.GONE);
 			p.dismiss();
-			ArrayList<Station> array = new ArrayList<Station>();
+			final ArrayList<Station> array = new ArrayList<Station>();
 			
 			try {
 				JSONObject root = new JSONObject(result);
 				if(root.isNull("error")){
 					
-				JSONObject info = root.getJSONObject("train_information");
+				final JSONObject info = root.getJSONObject("train_information");
 				heading.setText(info.getString("trainName"));
 				heading.setGravity(Gravity.CENTER_HORIZONTAL);
 				heading.setTextSize(20);
@@ -176,7 +179,56 @@ public class LocationActivity extends FragmentActivity implements LocationListen
 					array.add(s);
 					
 				}
+				
 				buildUi(array);
+
+				share.setOnClickListener(new View.OnClickListener() {
+
+					@Override
+					public void onClick(View v) {
+						// create the send intent
+						Intent shareIntent = new Intent(
+								android.content.Intent.ACTION_SEND);
+
+						// set the type
+						shareIntent.setType("text/plain");
+
+						// add a subject
+						try {
+							shareIntent.putExtra(
+									android.content.Intent.EXTRA_SUBJECT,
+									"ROUTE FOR TRAIN : " +info.getString("trainName")+"\n\n");
+						} catch (JSONException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+
+						// build the body of the message to be shared
+						String shareMessage = "";
+
+						for (Station station : array) {
+							shareMessage = shareMessage
+									+ station.getStationName().toUpperCase()+"("+station.getStationCode().toUpperCase()+")\n"
+									+ "Arrival : "+station.getArrivalTime()+"\n"
+									+ "Departure : "+station.getDepartureTime()+"\n"
+									+ "Halt-Time : "+station.getStopTime()+"\n"
+									+ "Distance Covered : "+station.getDistance()+"\n"
+									+"-----------------------------------------\n";
+						}
+
+						// add the message
+						shareIntent.putExtra(
+								android.content.Intent.EXTRA_TEXT,
+								shareMessage);
+
+						// start the chooser for sharing
+						startActivity(Intent.createChooser(shareIntent,
+								"Share your PNR Status"));
+
+					}
+				});
+
+				
 				} else {
 					Toast.makeText(getApplicationContext(), root.getString("error"), Toast.LENGTH_LONG).show();
 					finish();
