@@ -1,7 +1,6 @@
 package com.bhavit.pnrexpress;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -18,7 +17,6 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.text.InputType;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -27,7 +25,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
-import com.bhavit.pnrexpress.fragment.CommunityFragment;
 import com.bhavit.pnrexpress.fragment.PagesFragment;
 import com.bhavit.pnrexpress.fragment.PnrFragment;
 import com.bhavit.pnrexpress.fragment.SeatAvailabilityFragment;
@@ -194,6 +191,7 @@ public class MainActivity extends FragmentActivity {
 							Intent i = new Intent(MainActivity.this, LocationActivity.class);
 							i.putExtra("tnum", AppHelper.inputDialogAutoCompletetv.getText().toString()
 									.split("-")[1].trim());
+							AppHelper.inputDialogAutoCompletetv.selectAll();
 							startActivity(i);
 							
 						} else {

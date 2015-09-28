@@ -26,7 +26,6 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:layout_marginTop="10dp"
-                android:onClick="getRoute"
                 android:text="RANAKPUR EXPRESS"
                 android:textColor="#FFFFFF"
                 android:textSize="25sp" />

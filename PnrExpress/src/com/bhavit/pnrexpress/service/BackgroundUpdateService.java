@@ -1,16 +1,9 @@
 package com.bhavit.pnrexpress.service;
 
-import java.io.IOException;
 import java.util.List;
 
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.ResponseHandler;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.BasicResponseHandler;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.protocol.HTTP;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -36,11 +29,6 @@ import com.bhavit.pnrexpress.model.LastStatus;
 import com.bhavit.pnrexpress.model.PnrDetail;
 import com.bhavit.pnrexpress.util.AppHelper;
 import com.bhavit.pnrexpress.util.RestClient;
-import com.jaunt.Elements;
-import com.jaunt.NotFound;
-import com.jaunt.ResponseException;
-import com.jaunt.UserAgent;
-import com.jaunt.component.Table;
 
 public class BackgroundUpdateService extends Service {
 
@@ -98,7 +86,7 @@ public class BackgroundUpdateService extends Service {
 		if(!pnrs.equals("")){
 
 			MyAsyncTask myAsyncTask = new MyAsyncTask();
-			myAsyncTask.execute(url, pnrs);
+			myAsyncTask.execute("http://api.pnrexpress.in/PnrStatusService", pnrs);
 
 		}
 
@@ -121,47 +109,36 @@ public class BackgroundUpdateService extends Service {
 
 			for(int i = 0;i<pnrArray.length; i++){
 				
-				RestClient client = new RestClient(url);
+				RestClient client = new RestClient(url+"?pnr="+pnrArray[i]);
 				client.addHeader("Content-Type", "application/x-www-form-urlencoded");
-				client.addStringBody("pnr="+"pnr="+pnrArray[i]);
 
 				try {
 
-					resultPnr = client.executePost();
+					resultPnr = client.executeGet();
+					JSONObject resultObj = new JSONObject(resultPnr);
 
-					UserAgent userAgentPnr = new UserAgent();
-					userAgentPnr.openContent(resultPnr);
-
-					Table table = userAgentPnr.doc.getTable(0);
-					Elements elements = table.getRow(3);
-					int noOfPassengers =  Integer.parseInt(elements.getElement(2).innerHTML().split("\\:")[1].trim());
-
-					table = userAgentPnr.doc.getTable(1);	
+					int noOfPassengers =  resultObj.getInt("no_of_passengers");
 
 					String currentStatus = "";
 
+					JSONArray passengers = resultObj.getJSONArray("passengers");
 
 					for (int j = 1; j <= noOfPassengers; j++) {
 
-						elements = table.getRow(j);
+						JSONObject passenger = passengers.getJSONObject(i);
 
 						if(j!=noOfPassengers)
-							currentStatus = elements.getElement(2).innerHTML().trim()+", ";
+							currentStatus = passenger.getString("current_status")+", ";
 						else
-							currentStatus = elements.getElement(2).innerHTML().trim();
+							currentStatus = passenger.getString("current_status");
 
 					}
 
 					result[i][0] = pnrArray[i];
 					result[i][1] = currentStatus;
 
-				}catch (ResponseException e) {
+				}catch (Exception e) {
 					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (NotFound e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch(Exception e){
 					e.printStackTrace();
 				}
 

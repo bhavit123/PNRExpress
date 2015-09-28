@@ -1,37 +1,23 @@
 package com.bhavit.pnrexpress;
 
-import java.io.IOException;
-import java.text.DateFormat;
 import java.text.DateFormatSymbols;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.ResponseHandler;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.BasicResponseHandler;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.protocol.HTTP;
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Activity;
 import android.app.Dialog;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -40,7 +26,6 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -60,11 +45,6 @@ import com.bhavit.pnrexpress.util.AppHelper;
 import com.bhavit.pnrexpress.util.BaseAsyncTask;
 import com.bhavit.pnrexpress.util.BaseAsyncTask.Method;
 import com.bhavit.pnrexpress.util.RestClient;
-import com.google.gson.JsonArray;
-import com.jaunt.Element;
-import com.jaunt.Elements;
-import com.jaunt.UserAgent;
-import com.jaunt.component.Table;
 
 public class BaseActivity extends Activity {
 

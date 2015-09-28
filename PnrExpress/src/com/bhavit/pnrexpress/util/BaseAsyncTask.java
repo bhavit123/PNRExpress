@@ -1,12 +1,12 @@
 package com.bhavit.pnrexpress.util;
 
 
-import com.bhavit.pnrexpress.R;
-
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
+
+import com.bhavit.pnrexpress.R;
 
 public class BaseAsyncTask extends AsyncTask<String, Void, String> {
 

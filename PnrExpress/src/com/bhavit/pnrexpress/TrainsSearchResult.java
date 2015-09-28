@@ -1,15 +1,7 @@
 package com.bhavit.pnrexpress;
 
 import java.util.ArrayList;
-import java.util.GregorianCalendar;
 
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.ResponseHandler;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.BasicResponseHandler;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.protocol.HTTP;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -23,13 +15,10 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
-import android.widget.Adapter;
 import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
@@ -42,17 +31,8 @@ import com.bhavit.pnrexpress.adapters.CustomListViewAdapterTrainsList;
 import com.bhavit.pnrexpress.model.Availability;
 import com.bhavit.pnrexpress.model.Train;
 import com.bhavit.pnrexpress.util.AppConstants;
-import com.bhavit.pnrexpress.util.AppHelper;
 import com.bhavit.pnrexpress.util.BaseAsyncTask;
 import com.bhavit.pnrexpress.util.BaseAsyncTask.Method;
-import com.bhavit.pnrexpress.util.RestClient;
-import com.google.gson.JsonArray;
-import com.jaunt.Element;
-import com.jaunt.Elements;
-import com.jaunt.NotFound;
-import com.jaunt.ResponseException;
-import com.jaunt.UserAgent;
-import com.jaunt.component.Table;
 
 public class TrainsSearchResult extends BaseActivity{
 
@@ -294,6 +274,16 @@ public class TrainsSearchResult extends BaseActivity{
 							.findViewById(R.id.train_name);
 					trainName.setText(availabilityObj.getString("train_name"));
 					trainName.setTypeface(tf);
+					trainName.setOnClickListener(new View.OnClickListener() {				
+						@Override
+						public void onClick(View v) {
+							
+							Intent i = new Intent(TrainsSearchResult.this, LocationActivity.class);
+							i.putExtra("tnum", trainNumber);
+							startActivity(i);
+							
+						}
+					});
 
 					trainNo = (TextView) dialog.findViewById(R.id.train_no);
 					trainNo.setText("(" + availabilityObj.getString("train_number")
@@ -536,12 +526,5 @@ public class TrainsSearchResult extends BaseActivity{
 
 		}
 
-	public void getRoute(View v) {
-
-		Intent i = new Intent(TrainsSearchResult.this, LocationActivity.class);
-		i.putExtra("tnum", trainNumber);
-		startActivity(i);
-
-	}
 
 }

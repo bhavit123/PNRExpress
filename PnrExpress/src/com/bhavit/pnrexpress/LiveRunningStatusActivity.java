@@ -6,18 +6,15 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.bhavit.pnrexpress.adapters.CustomListAdapterLiveRunningStatus;
-import com.bhavit.pnrexpress.model.Availability;
-import com.bhavit.pnrexpress.model.LiveTrainRunningStatus;
-import com.bhavit.pnrexpress.util.RestClient;
-
-import android.app.Activity;
-import android.app.ProgressDialog;
-import android.os.AsyncTask;
+import android.content.Context;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ListView;
-import android.widget.Toast;
+
+import com.bhavit.pnrexpress.adapters.CustomListAdapterLiveRunningStatus;
+import com.bhavit.pnrexpress.model.LiveTrainRunningStatus;
+import com.bhavit.pnrexpress.util.BaseAsyncTask;
+import com.bhavit.pnrexpress.util.BaseAsyncTask.Method;
 
 
 public class LiveRunningStatusActivity extends BaseActivity {
@@ -35,89 +32,76 @@ public class LiveRunningStatusActivity extends BaseActivity {
 
 		list = (ListView) findViewById(R.id.stations_list);		
 
-		LiveStatusAsyncTask asyncTask = new LiveStatusAsyncTask();
-		asyncTask.execute("http://api.pnrexpress.in/LiveStatusService", tnum, date);
+		LiveStatusAsyncTask asyncTask = new LiveStatusAsyncTask(this,Method.GET);
+		asyncTask.execute("http://api.pnrexpress.in/LiveStatusService"+"?tnum="+tnum+"&date="+date);
 	}
 
-	public class LiveStatusAsyncTask extends AsyncTask<String, Void, String>{
+	public class LiveStatusAsyncTask extends BaseAsyncTask{
 
-		ProgressDialog p;
-
-
-		@Override
-		protected void onPreExecute() {
-			p = new ProgressDialog(LiveRunningStatusActivity.this);
-			p.show();
-			p.setContentView(R.layout.custom_progressdialog);
-			p.setCancelable(false);
-			p.setCanceledOnTouchOutside(false);
-
-			super.onPreExecute();
-		}
-
-		@Override
-		protected String doInBackground(String... params) {
-			RestClient client = new RestClient(params[0]+"?tnum="+params[1]+"&date="+params[2]);
-			client.addHeader("Content-Type", "application/x-www-form-urlencoded");
-			String result = client.executeGet();
-			System.out.println(result);
-			return result;
+		public LiveStatusAsyncTask(Context context, Method method) {
+			super(context, method);
+			// TODO Auto-generated constructor stub
 		}
 
 		@Override
 		protected void onPostExecute(String result) {
-			p.dismiss();
+
 			ArrayList<LiveTrainRunningStatus> array = new ArrayList<LiveTrainRunningStatus>();
 			JSONObject root;
 			String error = "";
 			try {
 				root = new JSONObject(result);
-				error = root.getString("error");
-				boolean flag = true;
-				selectedPosition = 0;
-				if(root.isNull("error")){
-					JSONArray arr = root.getJSONArray("livestatus");
-					for(int i = 0; i<arr.length(); i++){
+				if(!root.has("error")){
 
-						JSONObject obj = arr.getJSONObject(i);
-						String station = obj.getString("station");
-						String platform = obj.getString("platform");
-						String sArrival = obj.getString("scheduledArrival");
-						String sDeparture = obj.getString("scheduledDeparture");
-						String aArrival = obj.getString("actualArrival");
-						String aDeparture = obj.getString("actualDeparture");
-						String trainStatus = obj.getString("trainStatus");
-						LiveTrainRunningStatus object = new LiveTrainRunningStatus(station, platform, sArrival, sDeparture, aArrival, aDeparture, trainStatus);
+					boolean flag = true;
+					selectedPosition = 0;
+					if(root.isNull("error")){
+						JSONArray arr = root.getJSONArray("livestatus");
+						for(int i = 0; i<arr.length(); i++){
 
-						if(trainStatus.contains("Departed"))
-							object.setBackground(R.color.green);
+							JSONObject obj = arr.getJSONObject(i);
+							String station = obj.getString("station");
+							String platform = obj.getString("platform");
+							String sArrival = obj.getString("scheduledArrival");
+							String sDeparture = obj.getString("scheduledDeparture");
+							String aArrival = obj.getString("actualArrival");
+							String aDeparture = obj.getString("actualDeparture");
+							String trainStatus = obj.getString("trainStatus");
+							LiveTrainRunningStatus object = new LiveTrainRunningStatus(station, platform, sArrival, sDeparture, aArrival, aDeparture, trainStatus);
 
-						if(flag){
-							
-							if(obj.getString("trainStatus").contains("Waiting"))
-							if(obj.getString("trainStatus").contains("Waiting")){
-								
-								if(i<(arr.length()-1) && arr.getJSONObject(i+1).getString("trainStatus").contains("Waiting")){
-									
-									
-								}
-								
-								object.setTrainIcon(View.VISIBLE);
-								selectedPosition = i;
-								flag=false;
-							} else if(obj.getString("trainStatus").equals("")){
-								object.setTrainIcon(View.VISIBLE);
-								selectedPosition = i;
-								flag=false;
+							if(trainStatus.contains("Departed"))
+								object.setBackground(R.color.green);
+
+							if(flag){
+
+								if(obj.getString("trainStatus").contains("Waiting"))
+									if(obj.getString("trainStatus").contains("Waiting")){
+
+										if(i<(arr.length()-1) && arr.getJSONObject(i+1).getString("trainStatus").contains("Waiting")){
+
+
+										}
+
+										object.setTrainIcon(View.VISIBLE);
+										selectedPosition = i;
+										flag=false;
+									} else if(obj.getString("trainStatus").equals("")){
+										object.setTrainIcon(View.VISIBLE);
+										selectedPosition = i;
+										flag=false;
+									}
 							}
+
+							array.add(object);
+
 						}
-
-						array.add(object);
-
 					}
+				} else {
+					error = root.getString("error");
+					showAlertDialog(LiveRunningStatusActivity.this, "ERROR!", error);
 				}
 			} catch (JSONException e) {
-				showAlertDialog(LiveRunningStatusActivity.this, "ERROR!", error);
+				showAlertDialog(LiveRunningStatusActivity.this, "ERROR!", "Some error occured, please try again later.");
 				e.printStackTrace();
 			}
 

@@ -13,27 +13,13 @@ package com.bhavit.pnrexpress.util;
 
 import java.io.BufferedInputStream;
 import java.io.DataOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.util.Scanner;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.ResponseHandler;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.BasicResponseHandler;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.protocol.HTTP;
-import org.apache.http.util.EntityUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -45,6 +31,7 @@ public class RestClient {
 	String headerName = null;
 	String headerValue = null;
 	int CONNECTION_TIMEOUT = 5000;
+	int DATARETRIEVAL_TIMEOUT = 15000;
 
 	public RestClient(String s) {
 
@@ -118,10 +105,13 @@ public class RestClient {
 			return getResponseText(in);
 
 		} catch (MalformedURLException e) {
+			e.printStackTrace();
 			// URL is invalid
 		} catch (SocketTimeoutException e) {
+			e.printStackTrace();
 			// data retrieval or connection timed out
-		} catch (IOException e) {
+		} catch (Exception e) {
+			e.printStackTrace();
 			// could not read response body
 			// (could not create input stream)
 		} finally {
@@ -141,7 +131,7 @@ public class RestClient {
 			URL urlToRequest = new URL(url);
 			urlConnection = (HttpURLConnection) urlToRequest.openConnection();
 			urlConnection.setConnectTimeout(CONNECTION_TIMEOUT);
-			// urlConnection.setReadTimeout(DATARETRIEVAL_TIMEOUT);
+			urlConnection.setReadTimeout(DATARETRIEVAL_TIMEOUT);
 
 			// handle issues
 			int statusCode = urlConnection.getResponseCode();
@@ -157,10 +147,13 @@ public class RestClient {
 			return getResponseText(in);
 
 		} catch (MalformedURLException e) {
+			e.printStackTrace();
 			// URL is invalid
 		} catch (SocketTimeoutException e) {
+			e.printStackTrace();
 			// data retrieval or connection timed out
-		} catch (IOException e) {
+		} catch (Exception e) {
+			e.printStackTrace();
 			// could not read response body
 			// (could not create input stream)
 		} finally {
