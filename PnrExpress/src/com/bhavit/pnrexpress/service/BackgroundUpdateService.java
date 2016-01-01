@@ -86,7 +86,7 @@ public class BackgroundUpdateService extends Service {
 		if(!pnrs.equals("")){
 
 			MyAsyncTask myAsyncTask = new MyAsyncTask();
-			myAsyncTask.execute("http://api.pnrexpress.in/PnrStatusService", pnrs);
+			myAsyncTask.execute("http://1-dot-pnrexpressservice.appspot.com/PnrStatusService", pnrs);
 
 		}
 
@@ -128,9 +128,9 @@ public class BackgroundUpdateService extends Service {
 						JSONObject passenger = passengers.getJSONObject(i);
 
 						if(j!=noOfPassengers)
-							currentStatus = passenger.getString("current_status")+", ";
+							currentStatus = currentStatus+passenger.getString("current_status")+", ";
 						else
-							currentStatus = passenger.getString("current_status");
+							currentStatus = currentStatus+passenger.getString("current_status");
 
 					}
 

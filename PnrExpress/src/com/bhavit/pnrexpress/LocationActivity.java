@@ -63,6 +63,7 @@ public class LocationActivity extends FragmentActivity implements LocationListen
 
 		locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
 		share = (Button)findViewById(R.id.button2);
+		share.setTypeface(BaseActivity.tf);
 		whereAmI = (Button)findViewById(R.id.button1);
 		whereAmI.setTypeface(BaseActivity.tf);
 		whereAmI.setOnClickListener(new View.OnClickListener() {
@@ -126,7 +127,7 @@ public class LocationActivity extends FragmentActivity implements LocationListen
 		} else {
 			String tnum = this.getIntent().getStringExtra("tnum");
 			LocationAsyncTask task = new LocationAsyncTask();
-			task.execute("http://api.pnrexpress.in/TrainRouteService",tnum);
+			task.execute("http://1-dot-pnrexpressservice.appspot.com/TrainRouteService",tnum);
 		}
 
 	}

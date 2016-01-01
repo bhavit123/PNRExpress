@@ -221,7 +221,7 @@ OnClickListener {
 					if (date != null) {
 						if (!stationCode1.getText().toString()
 								.equals(stationCode2.getText().toString())) {
-							String url2 = "http://api.pnrexpress.in/TrainsBetweenStationService";
+							String url2 = "http://1-dot-pnrexpressservice.appspot.com/TrainsBetweenStationService";
 
 							String dateString = (date.getDayOfMonth() < 10 ? "0"
 									+ date.getDayOfMonth()

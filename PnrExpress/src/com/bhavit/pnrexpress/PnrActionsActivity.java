@@ -5,6 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
 import android.content.Intent;
@@ -32,10 +33,10 @@ public class PnrActionsActivity extends BaseActivity {
 		
 		SimpleDateFormat myFormat = new SimpleDateFormat("yyyy-MM-dd");
 		String doj = obj.getDateOfJourney();
-		Calendar today = GregorianCalendar.getInstance();
+		Calendar today = Calendar.getInstance();
 
 		try {
-		    Date date1 = myFormat.parse(today.get(Calendar.YEAR)+"-"+(today.get(Calendar.MONTH)+1)+"-"+Calendar.DAY_OF_MONTH);
+		    Date date1 = myFormat.parse(today.get(Calendar.YEAR)+"-"+(today.get(Calendar.MONTH)+1)+"-"+(today.get(Calendar.DAY_OF_MONTH)));
 		    Date date2 = myFormat.parse(doj);
 		    long diff = date2.getTime() - date1.getTime();
 		    System.out.println ("Days: " + TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS));
@@ -96,10 +97,10 @@ public class PnrActionsActivity extends BaseActivity {
 
 				PnrDetail obj = BaseActivity.sqlHelper.getPnrDetail(pnrNo);
 				i.putExtra("tnum", obj.getTrainNumber());
-
+				i.putExtra("tname", obj.getTrainName());
 				i.putExtra(
 						"date",
-						obj.getDateOfJourney().replace("-", ""));
+						obj.getDateOfJourney());
 
 				startActivity(i);
 

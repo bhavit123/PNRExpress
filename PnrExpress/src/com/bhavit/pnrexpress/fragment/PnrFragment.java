@@ -53,8 +53,8 @@ public class PnrFragment extends BaseFragment {
 		setDrawerAndSettingsButtons(rootView);
 
 		SharedPreferences pfs = getActivity().getSharedPreferences("pnrexpress", 0);
-		boolean isMyServiceRunning = true;
-				//pfs.getBoolean("isServiceRunning", false);
+		boolean isMyServiceRunning = 
+				pfs.getBoolean("isServiceRunning", false);
 
 		if (!isMyServiceRunning) { 
 
@@ -72,6 +72,7 @@ public class PnrFragment extends BaseFragment {
 					60 * 60 * 1000, pintent);
 
 			pfs.edit().putBoolean("isServiceRunning", true).apply();
+			//getActivity().startService(intent);
 		}
 
 		TextView recentlyViewed = (TextView) rootView.findViewById(R.id.textView1);

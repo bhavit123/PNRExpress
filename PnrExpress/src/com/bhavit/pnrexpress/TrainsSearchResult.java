@@ -183,7 +183,7 @@ public class TrainsSearchResult extends BaseActivity{
 			public void onItemClick(AdapterView<?> arg0, View arg1,
 					int position, long arg3) {
 
-				String url = "http://api.pnrexpress.in/SeatAvailabilityService";
+				String url = "http://1-dot-pnrexpressservice.appspot.com/SeatAvailabilityService";
 
 				ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
 				NetworkInfo networkInfo = cm.getActiveNetworkInfo();
@@ -380,7 +380,7 @@ public class TrainsSearchResult extends BaseActivity{
 						if (networkInfo != null && networkInfo.isConnected()) {
 
 						LocalAsyncTaskSpinnersChanged task = new LocalAsyncTaskSpinnersChanged(TrainsSearchResult.this, Method.GET);
-						task.execute("http://api.pnrexpress.in/SeatAvailabilityService"
+						task.execute("http://1-dot-pnrexpressservice.appspot.com/SeatAvailabilityService"
 								+ "?tnum="
 								+ details.split("\\|")[0]
 										+ "&from="

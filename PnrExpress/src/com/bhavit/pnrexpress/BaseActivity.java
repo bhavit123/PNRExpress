@@ -221,7 +221,7 @@ public class BaseActivity extends Activity {
 
 		this.context = context;
 		//String pnrUrl = "http://www.pnrstatus.in/pnr/query.php";
-		String pnrUrl = "http://api.pnrexpress.in/PnrStatusService";
+		String pnrUrl = "http://1-dot-pnrexpressservice.appspot.com/PnrStatusService";
 
 		ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
 		NetworkInfo networkInfo = cm.getActiveNetworkInfo();
@@ -271,8 +271,8 @@ public class BaseActivity extends Activity {
 					String trainNo = resultObj.getString("train_num");
 
 					//Getting the route train information 
-					RestClient clientRoute = new RestClient("http://api.pnrexpress.in/TrainRouteService?trainno="+trainNo);
-					Log.i("URL", "http://api.pnrexpress.in/TrainRouteService?trainno="+trainNo);
+					RestClient clientRoute = new RestClient("http://1-dot-pnrexpressservice.appspot.com/TrainRouteService?trainno="+trainNo);
+					Log.i("URL", "http://1-dot-pnrexpressservice.appspot.com/TrainRouteService?trainno="+trainNo);
 					resultRoute = clientRoute.executeGet();
 					Log.i("RESPONSE", resultRoute);
 

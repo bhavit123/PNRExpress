@@ -10,9 +10,11 @@ import android.content.Context;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.bhavit.pnrexpress.adapters.CustomListAdapterLiveRunningStatus;
 import com.bhavit.pnrexpress.model.LiveTrainRunningStatus;
+import com.bhavit.pnrexpress.util.AppHelper;
 import com.bhavit.pnrexpress.util.BaseAsyncTask;
 import com.bhavit.pnrexpress.util.BaseAsyncTask.Method;
 
@@ -28,12 +30,23 @@ public class LiveRunningStatusActivity extends BaseActivity {
 		setContentView(R.layout.activity_live_running_status);
 
 		String tnum = getIntent().getStringExtra("tnum");
+		String tname = getIntent().getStringExtra("tname");
 		String date = getIntent().getStringExtra("date");
+		
+		TextView trainName = (TextView) findViewById(R.id.textView_trainname);
+		TextView journeyDate = (TextView) findViewById(R.id.textView_date);
+		
+		trainName.setText(tname+"("+tnum+")");
+		journeyDate.setText(AppHelper.changeDateFormat(
+        		date, "yyyy-MM-dd",
+				"MMMM dd, yyyy"));
+		trainName.setTypeface(tf);
+		journeyDate.setTypeface(tf);
 
 		list = (ListView) findViewById(R.id.stations_list);		
 
 		LiveStatusAsyncTask asyncTask = new LiveStatusAsyncTask(this,Method.GET);
-		asyncTask.execute("http://api.pnrexpress.in/LiveStatusService"+"?tnum="+tnum+"&date="+date);
+		asyncTask.execute("http://1-dot-pnrexpressservice.appspot.com/LiveStatusService"+"?tnum="+tnum+"&date="+date.replace("-", ""));
 	}
 
 	public class LiveStatusAsyncTask extends BaseAsyncTask{
@@ -100,7 +113,7 @@ public class LiveRunningStatusActivity extends BaseActivity {
 					error = root.getString("error");
 					showAlertDialog(LiveRunningStatusActivity.this, "ERROR!", error);
 				}
-			} catch (JSONException e) {
+			} catch (Exception e) {
 				showAlertDialog(LiveRunningStatusActivity.this, "ERROR!", "Some error occured, please try again later.");
 				e.printStackTrace();
 			}

@@ -11,7 +11,7 @@
         android:id="@+id/divider"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/textView_date"
+        android:layout_below="@+id/green"
         android:layout_marginTop="7dp"
         android:src="@drawable/quote_title_underline" />
 
@@ -45,5 +45,27 @@
         android:layout_centerHorizontal="true"
         android:text="30 Jun 2015"
         android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <LinearLayout
+        android:id="@+id/green"
+        android:layout_width="30dp"
+        android:layout_height="20dp"
+        android:layout_marginTop="10dp"
+        android:background="@color/green"
+        android:layout_alignLeft="@+id/textView_trainname"
+        android:layout_below="@+id/textView_date"
+        android:orientation="vertical" >
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/textView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/green"
+        android:layout_marginLeft="5dp"
+        android:layout_toRightOf="@+id/green"
+        android:text="-> Stations travelled so far"
+        android:textColor="#FFFFFF"
+        android:textSize="15sp" />
 
 </RelativeLayout>
