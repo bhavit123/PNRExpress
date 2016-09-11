@@ -1,0 +1,1 @@
+This is source code of my application named PNRExpress. It used to give user updates on his railways ticket viz. PNR Status, seat availability, train schedules etc. I am no longer supporting this app so put it on github as an opensource for reference. APIs in it no longer work.
